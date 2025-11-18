@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("case_name")->index();
             $table->string("responsable_lawyer");
             $table->string("case_type")->index();
-            $table->string("juzgado"); //Traducir a ingles
+            $table->string("courtroom"); //Traducir a ingles
             $table->string("external_expedient_number")->index();
             $table->longText("resume");
             $table->DateTime("start_date");

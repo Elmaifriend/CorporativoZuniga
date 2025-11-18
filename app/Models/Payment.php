@@ -17,4 +17,8 @@ class Payment extends Model
         "concept",
         "transaction_reference",
     ];
+
+    public function paymentable(){
+        return $this->morphTo();
+    }
 }

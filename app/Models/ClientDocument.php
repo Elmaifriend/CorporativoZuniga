@@ -11,9 +11,14 @@ class ClientDocument extends Model
     use HasFactory;
 
     protected $fillable = [
+        "client_id",
         "document_type",
         "document_name",
         "document_path",
         "notes",
     ];
+
+    public function client(){
+        return $this->belongsTo(Client::class, "client_id");
+    }
 }

@@ -23,4 +23,12 @@ class Procedure extends Model
         "order",
         "notes"
     ];
+
+    public function clientCase(){
+        return $this->belongsTo(ClientCase::class, "case_id");
+    }
+
+    public function documents(){
+        return $this->hasMany(ProcedureDocument::class, "procedure_id");
+    }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string("payment_metod");
             $table->string("concept");
             $table->string("transaction_reference");
-            $table->morphs("payable");
+            $table->morphs("paymentable");
             $table->timestamps();
         });
     }

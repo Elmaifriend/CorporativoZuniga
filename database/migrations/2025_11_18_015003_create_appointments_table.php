@@ -17,7 +17,7 @@ return new class extends Migration
             $table->dateTime("date_time");
             $table->text("reason"); //Rason de la cita
             $table->string("status"); //Pendiente, Confirmada, Asistió, Canceló, Reagendó
-            $table->unsignedBigInteger("related_case_id")->nullable();
+            $table->unsignedBigInteger("case_id")->nullable();
             $table->unsignedBigInteger("responsable_lawyer")->nullable();
             $table->string("modality")->nullable(); //Presencial, virtual, o telefonica
             $table->longText("notes")->nullable();

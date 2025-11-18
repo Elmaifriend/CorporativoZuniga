@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('procedure_documents', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger("procedure_id")->index();
             $table->string("name");
             $table->string("file_paht");
             $table->longText("notes");
