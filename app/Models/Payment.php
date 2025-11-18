@@ -9,4 +9,12 @@ class Payment extends Model
 {
     /** @use HasFactory<\Database\Factories\PaymentFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        "client_id",
+        "amount",
+        "payment_metod",
+        "concept",
+        "transaction_reference",
+    ];
 }

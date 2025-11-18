@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //convertir en morph para que se pueda asociar con cliente y con caso
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('recurrent_payments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger("client_id")->index();
+            $table->string("title");
+            $table->longText("description");
             $table->double("amount");
-            $table->string("payment_metod");
-            $table->string("concept");
-            $table->string("transaction_reference");
-            $table->morphs("payable");
+            $table->string("frequency"); //semana, mensual, bimestral, trimestral
+            $table->integer("agreed_payment_day");
+            $table->dateTime("contract_start_date");
+            $table->string("status"); //Activa, en mora, finalizado, cancelado
+            $table->string("expiration_alert");
             $table->timestamps();
         });
     }
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('recurrent_payments');
     }
 };
