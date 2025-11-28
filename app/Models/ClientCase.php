@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute; // Necesario para usar Attributes
 
 class ClientCase extends Model
 {
@@ -23,8 +24,32 @@ class ClientCase extends Model
         "real_finished_date",
         "status",
         "total_pricing",
-        "paid_porcentage" //convertir en un computed field
     ];
+
+    protected function paidPorcentage(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                // Si el caso no tiene precio total definido o es cero, retorna 0
+                $totalPricing = (float) $attributes['total_pricing'];
+                if ($totalPricing <= 0) {
+                    return 0;
+                }
+
+                // Carga la relación de pagos (si aún no está cargada)
+                // y suma la cantidad pagada ('amount' en la tabla 'payments').
+                $totalPaid = (float) $this->payments()->sum('amount');
+                
+                // Calcula el porcentaje pagado
+                $percentage = ($totalPaid / $totalPricing) * 100;
+                
+                // Retorna el porcentaje redondeado a dos decimales
+                return round($percentage, 2);
+            },
+        );
+    }
+
+    // --- RELACIONES ---
 
     public function client(){
         return $this->belongsTo(Client::class, "client_id");
@@ -35,6 +60,8 @@ class ClientCase extends Model
     }
 
     public function payments(){
+        // Esta relación es crucial para el cálculo del porcentaje
+        // Debe apuntar a la tabla de pagos y usar el morphMany correcto.
         return $this->morphMany(Payment::class, "paymentable");
     }
 

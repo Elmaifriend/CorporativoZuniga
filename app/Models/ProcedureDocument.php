@@ -14,7 +14,7 @@ class ProcedureDocument extends Model
         "procedure_id",
         "name",
         "file_path",
-        "note",
+        "notes",
     ];
 
     public function procedure(){

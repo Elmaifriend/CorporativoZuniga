@@ -18,9 +18,11 @@ class AppointmentsTable
                 TextColumn::make('date_time')
                     ->dateTime()
                     ->label("Fecha y hora"),
-                TextColumn::make("responsable_lawyer")
+                TextColumn::make('responsable.name') // Usa la relación 'responsable' y accede al campo 'name'
                     ->label("Responsable")
-                    ->badge(),
+                    ->badge()
+                    ->searchable() // Permite buscar por nombre de abogado
+                    ->sortable(), // Permite ordenar por nombre de abogado,
                 TextColumn::make("status")
                     ->label("Estatus")
                     ->badge(),

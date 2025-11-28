@@ -18,7 +18,7 @@ return new class extends Migration
             $table->double("amount");
             $table->string("payment_metod");
             $table->string("concept");
-            $table->string("transaction_reference");
+            $table->string("transaction_reference")->nullable();
             $table->morphs("paymentable");
             $table->timestamps();
         });

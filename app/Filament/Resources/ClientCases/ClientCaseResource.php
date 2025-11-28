@@ -21,6 +21,10 @@ use Filament\Tables\Table;
 
 class ClientCaseResource extends Resource
 {
+    protected static ?string $modelLabel = 'Caso';
+
+    protected static ?string $pluralModelLabel = 'Casos';
+
     protected static ?string $model = ClientCase::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string("client_type");
             $table->string("phone_number");
             $table->string("email")->nullable();
-            $table->string("curp");
+            $table->string("curp")->nullable(); //Las empresas no tienen CURP
             $table->string("rfc")->nullable();
             $table->string("address")->nullable();
             $table->string("ine_id")->nullable();
             $table->string("occupation")->nullable();
-            $table->dateTime("date_of_birth");
+            $table->dateTime("date_of_birth")->nullable(); //Las empresas no tienen fecha de nacimiento
             $table->timestamps();
         });
     }

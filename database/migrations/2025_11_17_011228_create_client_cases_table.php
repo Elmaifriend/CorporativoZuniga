@@ -22,10 +22,9 @@ return new class extends Migration
             $table->longText("resume");
             $table->DateTime("start_date");
             $table->DateTime("stimated_finish_date");
-            $table->DateTime("real_finished_date");
+            $table->DateTime("real_finished_date")->nullable();
             $table->string("status")->index(); 
             $table->string("total_pricing"); //Traducir a ingles ( honorarios? )
-            $table->string("paid_porcentage"); //Pasar a computed field <==== IMPORTANTE
             $table->timestamps();
 
             //Relationships

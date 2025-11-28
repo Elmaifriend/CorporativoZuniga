@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("document_type")->index();
             $table->string("document_name")->index();
             $table->string("document_path");
-            $table->longText("notes");
+            $table->longText("notes")->nullable();
             $table->timestamps();
 
             //Relationships

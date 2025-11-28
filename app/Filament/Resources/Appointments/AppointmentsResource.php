@@ -18,6 +18,11 @@ use Filament\Tables\Table;
 
 class AppointmentsResource extends Resource
 {
+
+    protected static ?string $modelLabel = 'Cita';
+
+    protected static ?string $pluralModelLabel = 'Citas';
+
     protected static ?string $model = Appointments::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

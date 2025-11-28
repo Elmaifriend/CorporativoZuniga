@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string("title");
             $table->longText("description");
             $table->double("amount");
-            $table->string("frequency"); //semana, mensual, bimestral, trimestral
+            $table->string("frecuency"); //semana, mensual, bimestral, trimestral
             $table->integer("agreed_payment_day");
             $table->dateTime("contract_start_date");
             $table->string("status"); //Activa, en mora, finalizado, cancelado
-            $table->string("expiration_alert");
+            $table->string("expiration_alert")->nullable();
             $table->timestamps();
 
             //Relationships

@@ -23,5 +23,9 @@ class Appointments extends Model
     public function appointmentable(){
         return $this->morphTo();
     }
-}
 
+    public function responsable(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'responsable_lawyer');
+    }
+}

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string("responsable_employee")->nullable();
             $table->string("status");
             $table->dateTime("starting_date");
-            $table->dateTime("last_update");
-            $table->dateTime("finished_date");
-            $table->dateTime("limite_date");
+            $table->dateTime("last_update")->nullable();
+            $table->dateTime("finish_date")->nullable();
+            $table->dateTime("limit_date")->nullable();
             $table->string("priority");
             $table->integer("order");
-            $table->string("notes");
+            $table->string("notes")->nullable();
             $table->timestamps();
 
             //Relationships
