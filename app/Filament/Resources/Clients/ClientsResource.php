@@ -9,7 +9,7 @@ use App\Filament\Resources\Clients\Pages\ViewClients;
 use App\Filament\Resources\Clients\RelationManagers\AppointmentsRelationManager;
 use App\Filament\Resources\Clients\RelationManagers\CasesRelationManager;
 use App\Filament\Resources\Clients\RelationManagers\DocumentsRelationManager;
-use App\Filament\Resources\Clients\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Clients\RelationManagers\ClientPaymentsRelationManager;
 use App\Filament\Resources\Clients\RelationManagers\RecurrentPaymentsRelationManager;
 use App\Filament\Resources\Clients\Schemas\ClientsForm;
 use App\Filament\Resources\Clients\Schemas\ClientsInfolist;
@@ -22,9 +22,12 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ClientsResource extends Resource
 {   
+    protected static string | UnitEnum | null $navigationGroup = 'Clientes';
+
     protected static ?string $modelLabel = 'Cliente';
 
     protected static ?string $pluralModelLabel = 'Clientes';
@@ -54,7 +57,7 @@ class ClientsResource extends Resource
             CasesRelationManager::class,
             DocumentsRelationManager::class,
             AppointmentsRelationManager::class,
-            PaymentsRelationManager::class,
+            ClientPaymentsRelationManager::class,
             RecurrentPaymentsRelationManager::class,
         ];
     }

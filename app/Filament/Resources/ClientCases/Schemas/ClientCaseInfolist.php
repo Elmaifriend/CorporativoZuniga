@@ -28,7 +28,7 @@ class ClientCaseInfolist
                     ->dateTime(),
                 TextEntry::make('status'),
                 TextEntry::make('total_pricing'),
-                TextEntry::make('paid_porcentage'),
+                TextEntry::make('paidPorcentage'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

@@ -14,7 +14,7 @@ class RecurrentPaymentSeeder extends Seeder
     public function run(): void
     {
         // Genera 40 pagos recurrentes activos o pausados
-        RecurrentPayment::factory()->count(40)->create();
+        RecurrentPayment::factory()->count(400)->create();
         
         // Genera 10 pagos recurrentes ya finalizados o cancelados
         RecurrentPayment::factory()->finished()->count(10)->create();

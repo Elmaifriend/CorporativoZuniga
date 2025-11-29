@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ClientCase;
 
 class Appointments extends Model
 {
@@ -24,8 +25,13 @@ class Appointments extends Model
         return $this->morphTo();
     }
 
-    public function responsable(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function responsable()
     {
         return $this->belongsTo(User::class, 'responsable_lawyer');
+    }
+
+    public function case()
+    {
+        return $this->belongsTo(ClientCase::class, 'case_id');
     }
 }

@@ -16,35 +16,47 @@ class ClientCasesTable
         return $table
             ->columns([
                 TextColumn::make('case_name')
-                    ->searchable(),
+                    ->label('Caso')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('responsable_lawyer')
-                    ->searchable(),
+                    ->label('Abogado')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('case_type')
-                    ->searchable(),
-                TextColumn::make('courtroom')
-                    ->searchable(),
-                TextColumn::make('external_expedient_number')
-                    ->searchable(),
-                TextColumn::make('start_date')
-                    ->dateTime()
+                    ->label('Tipo')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'Civil',
+                        'success' => 'Mercantil',
+                        'warning' => 'Laboral',
+                        'danger' => 'Penal',
+                        'info' => 'Familiar',
+                        'purple' => 'Administrativo',
+                    ])
                     ->sortable(),
-                TextColumn::make('stimated_finish_date')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('real_finished_date')
-                    ->dateTime()
-                    ->sortable(),
+
                 TextColumn::make('status')
-                    ->searchable(),
-                TextColumn::make('total_pricing')
-                    ->searchable(),
-                TextColumn::make('paid_porcentage')
-                    ->searchable(),
-                TextColumn::make('created_at')
+                    ->label('Estatus')
+                    ->badge()
+                    ->colors([
+                        'success' => 'Abierto',
+                        'purple' => 'En Proceso',
+                        'danger' => 'Pausado',
+                        'primary' => 'Cerrado',
+                    ])
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('start_date')
+                    ->label('Inicio')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                    ->sortable(),
+
+                TextColumn::make('real_finished_date')
+                    ->label('Finalizado')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

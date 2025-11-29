@@ -15,9 +15,12 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PaymentResource extends Resource
 {
+    protected static string | UnitEnum | null $navigationGroup = 'Pagos';
+
     protected static ?string $modelLabel = 'Pago';
 
     protected static ?string $pluralModelLabel = 'Pagos';

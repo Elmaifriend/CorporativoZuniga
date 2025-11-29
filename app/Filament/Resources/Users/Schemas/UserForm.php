@@ -19,7 +19,8 @@ class UserForm
                     ->columnSpanFull(),
                 TextInput::make('email')
                     ->label("Correo Electronico"),
-                Select::make('status')
+                Select::make('role')
+                    ->label("Role")
                     ->options([
                         'draft' => 'Abogado',
                         'reviewing' => 'Contador',

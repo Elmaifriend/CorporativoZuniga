@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             RecurrentPaymentSeeder::class,
             PaymentSeeder::class,
             AppointmentsSeeder::class,
+            CommentSeeder::class,
         ]);
     }
 }

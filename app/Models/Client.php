@@ -42,4 +42,11 @@ class Client extends Model
     public function recurrentPayments(){
         return $this->hasMany(RecurrentPayment::class, "client_id");
     }
+
+    public function allPayments()
+    {
+        return \App\Models\Payment::query()
+            ->where('client_id', $this->id);
+    }
+
 }

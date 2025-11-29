@@ -28,6 +28,7 @@ class ClientCaseForm
                     ->required(),
                 Textarea::make('resume')
                     ->required()
+                    ->rows(6)
                     ->columnSpanFull(),
                 DateTimePicker::make('start_date')
                     ->required(),
@@ -38,9 +39,15 @@ class ClientCaseForm
                 TextInput::make('status')
                     ->required(),
                 TextInput::make('total_pricing')
+                    ->prefix("$")
                     ->required(),
-                TextInput::make('paid_porcentage')
-                    ->required(),
+                TextInput::make('paidPorcentage')
+                    ->label("Porcentaje pagado")
+                    ->disabled()
+                    ->prefix("$")
+                    ->afterStateHydrated(function ($component, $state, $record) {
+                        $component->state($record->paidPorcentage);
+                    }),
             ]);
     }
 }

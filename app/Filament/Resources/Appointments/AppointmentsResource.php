@@ -15,9 +15,11 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AppointmentsResource extends Resource
 {
+    protected static string | UnitEnum | null $navigationGroup = 'Clientes';
 
     protected static ?string $modelLabel = 'Cita';
 

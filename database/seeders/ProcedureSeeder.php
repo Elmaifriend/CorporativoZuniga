@@ -15,6 +15,6 @@ class ProcedureSeeder extends Seeder
     {
         // Genera 200 procedimientos de prueba. 
         // Si tienes 80 casos, esto da un promedio de 2.5 procedimientos por caso.
-        Procedure::factory()->count(200)->create();
+        Procedure::factory()->count(900)->create();
     }
 }

@@ -11,16 +11,19 @@ use App\Filament\Resources\ClientCases\RelationManagers\ProceduresRelationManage
 use App\Filament\Resources\ClientCases\Schemas\ClientCaseForm;
 use App\Filament\Resources\ClientCases\Schemas\ClientCaseInfolist;
 use App\Filament\Resources\ClientCases\Tables\ClientCasesTable;
-use App\Filament\Resources\Clients\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\ClientCases\RelationManagers\PaymentsRelationManager;
 use App\Models\ClientCase;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ClientCaseResource extends Resource
 {
+    protected static string | UnitEnum | null $navigationGroup = 'Clientes';
+
     protected static ?string $modelLabel = 'Caso';
 
     protected static ?string $pluralModelLabel = 'Casos';

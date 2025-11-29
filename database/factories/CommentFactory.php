@@ -37,15 +37,15 @@ class CommentFactory extends Factory
         $statuses = ['Abierto', 'Pendiente', 'Resuelto'];
         $status = $this->faker->randomElement($statuses);
         
-        $writedBy = $this->getRandomUserId();
-        $assignedTo = $this->getRandomUserId();
+        $writedBy = User::inRandomOrder()->first()->id;
+        $assignedTo = User::inRandomOrder()->first()->id;
         
         $solvedDate = ($status === 'Resuelto') 
             ? $this->faker->dateTimeBetween('-1 month', 'now') 
             : null;
      
         $attendedBy = ($status === 'Resuelto')
-            ? $this->getRandomUserId()
+            ? User::inRandomOrder()->first()->id
             : null;
         
         return [

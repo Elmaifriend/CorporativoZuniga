@@ -16,24 +16,42 @@ class AppointmentsTable
         return $table
             ->columns([
                 TextColumn::make('date_time')
+                    ->label("Fecha y hora")
                     ->dateTime()
-                    ->label("Fecha y hora"),
-                TextColumn::make('responsable.name') // Usa la relación 'responsable' y accede al campo 'name'
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('responsable.name')
                     ->label("Responsable")
                     ->badge()
-                    ->searchable() // Permite buscar por nombre de abogado
-                    ->sortable(), // Permite ordenar por nombre de abogado,
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make("status")
                     ->label("Estatus")
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Pendiente' => 'warning',
+                        'Confirmado' => 'success',
+                        'Cancelado' => 'danger',
+                        'Asistio' => 'success',
+                        'Reagendo' => 'primary',
+                        default => 'secondary', // gris para cualquier otro valor inesperado
+                    })
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make("modality")
                     ->label("Modalidad")
-                    ->badge(),
-                
-                
-                
-
-                
+                    ->badge()
+                    ->color(fn (?string $modality): string => match ($modality) {
+                        'Presencial' => 'primary',
+                        'Online' => 'success',
+                        'Llamada' => 'warning',
+                        default => 'secondary',
+                    })
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //
