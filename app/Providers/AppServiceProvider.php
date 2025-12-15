@@ -15,8 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if (env('APP_ENV') === 'production') {
-            URL::forceSchema('https');
+        if (env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
         }
     }
 
@@ -25,14 +25,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        FilamentColor::register([
-            'danger' => Color::Red,
-            'gray' => Color::Zinc,
-            'info' => Color::Blue,
-            'primary' => Color::Amber,
-            'success' => Color::Green,
-            'warning' => Color::Amber,
-            "purple" => Color::Purple,
-        ]);
+        
     }
 }
