@@ -26,6 +26,8 @@ use UnitEnum;
 
 class ClientsResource extends Resource
 {   
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+
     protected static string | UnitEnum | null $navigationGroup = 'Clientes';
 
     protected static ?string $modelLabel = 'Cliente';
@@ -33,8 +35,6 @@ class ClientsResource extends Resource
     protected static ?string $pluralModelLabel = 'Clientes';
 
     protected static ?string $model = Client::class;
-
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
     {
@@ -67,7 +67,7 @@ class ClientsResource extends Resource
         return [
             'index' => ListClients::route('/'),
             'create' => CreateClients::route('/create'),
-            'view' => ViewClients::route('/{record}'),
+            //'view' => ViewClients::route('/{record}'),
             'edit' => EditClients::route('/{record}/edit'),
         ];
     }

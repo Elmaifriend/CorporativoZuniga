@@ -28,8 +28,17 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->databaseNotifications()
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::hex('#0ea5e9'),       // sky-500
+                'primary-hover' => Color::hex('#0284c7'), // sky-600
+                'primary-focus' => Color::hex('#38bdf8'), // glow azul
+
+                'background' => Color::hex('#020617'),    // slate-950
+                'surface' => Color::hex('#0f172a'),       // slate-900
+
+                'text' => Color::hex('#f1f5f9'),          // slate-100
+                'text-muted' => Color::hex('#94a3b8'),    // slate-400
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

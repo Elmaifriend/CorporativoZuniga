@@ -21,7 +21,7 @@ class RoleResource extends Resource
 
     protected static ?string $model = Role::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-key';
 
     protected static ?string $recordTitleAttribute = 'Role';
 

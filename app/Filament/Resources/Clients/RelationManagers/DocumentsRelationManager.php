@@ -76,9 +76,7 @@ class DocumentsRelationManager extends RelationManager
                     ->url(fn ($record) => asset('storage/' . $record->document_path))
                     ->openUrlInNewTab(),
 
-                TextColumn::make('notes')
-                    ->label('Notas')
-                    ->limit(50),
+                
             ])
             ->filters([
                 //
@@ -89,7 +87,7 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
-                DissociateAction::make(),
+                //DissociateAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

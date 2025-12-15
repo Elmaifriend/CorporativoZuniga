@@ -22,6 +22,7 @@ use UnitEnum;
 
 class ClientCaseResource extends Resource
 {
+    
     protected static string | UnitEnum | null $navigationGroup = 'Clientes';
 
     protected static ?string $modelLabel = 'Caso';
@@ -30,8 +31,8 @@ class ClientCaseResource extends Resource
 
     protected static ?string $model = ClientCase::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
+    
     protected static ?string $recordTitleAttribute = 'Cases';
 
     public static function form(Schema $schema): Schema
