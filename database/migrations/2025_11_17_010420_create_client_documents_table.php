@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('client_documents', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger("client_id")->index();
-            $table->string("document_type")->index();
+            $table->unsignedBigInteger("client_id")->index()->nullable();
+            $table->string("document_type")->index()->nullable();
             $table->string("document_name")->index();
             $table->string("document_path");
             $table->longText("notes")->nullable();

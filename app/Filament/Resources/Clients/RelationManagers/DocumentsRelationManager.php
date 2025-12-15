@@ -34,11 +34,6 @@ class DocumentsRelationManager extends RelationManager
                     ->required()
                     ->placeholder('Ej. Acta Constitutiva'),
 
-                TextInput::make('document_type')
-                    ->label('Tipo de Documento')
-                    ->required()
-                    ->placeholder('Ej. Identificación Oficial'),
-
                 FileUpload::make('document_path')
                     ->label('Archivo PDF')
                     ->required()
