@@ -12,18 +12,29 @@ class Appointments extends ChartWidget
 
     protected function getData(): array
     {
+        // Color Corporativo Primario: #003e65 (Azul Marino)
+        $primaryColor = '#003e65'; 
+        
+        // Versión RGBA para el área de fondo (opacidad de 0.4)
+        // Convertir #003e65 a RGBA(0, 62, 101, 0.4)
+        $backgroundColor = 'rgba(0, 62, 101, 0.4)'; 
+
         return [
             'datasets' => [
                 [
                     'label' => 'Citas por día',
                     'data' => [
-                        3, 5, 1, 7, 4, 6, 2,   // Semana 1
-                        4, 3, 5, 8, 6, 2, 1,   // Semana 2
-                        7, 9, 4, 5, 6, 3, 2,   // Semana 3
-                        5, 4, 3, 7, 8, 6, 4    // Semana 4
+                        3, 5, 1, 7, 4, 6, 2,     // Semana 1
+                        4, 3, 5, 8, 6, 2, 1,     // Semana 2
+                        7, 9, 4, 5, 6, 3, 2,     // Semana 3
+                        5, 4, 3, 7, 8, 6, 4      // Semana 4
                     ],
-                    'borderColor' => '#3b82f6',
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.4)',
+                    
+                    // 1. Usar el color principal para la línea del gráfico
+                    'borderColor' => $primaryColor,
+                    
+                    // 2. Usar el color con transparencia para el área
+                    'backgroundColor' => $backgroundColor,
                 ],
             ],
             'labels' => [

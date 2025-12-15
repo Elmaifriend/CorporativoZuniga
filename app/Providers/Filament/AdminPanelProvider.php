@@ -21,8 +21,23 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    
     public function panel(Panel $panel): Panel
     {
+        $corporateBlue = [
+            50 => '#e0e7ee',
+            100 => '#b3c5d6',
+            200 => '#85a4bd',
+            300 => '#5783a5',
+            400 => '#2a618c',
+            500 => '#004c7a',
+            600 => '#003e65', 
+            700 => '#003050',
+            800 => '#00213b',
+            900 => '#001326',
+            950 => '#000810',
+        ];
+
         return $panel
             ->default()
             ->id('admin')
@@ -30,15 +45,14 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->databaseNotifications()
             ->colors([
-                'primary' => Color::hex('#0ea5e9'),       // sky-500
-                'primary-hover' => Color::hex('#0284c7'), // sky-600
-                'primary-focus' => Color::hex('#38bdf8'), // glow azul
-
-                'background' => Color::hex('#020617'),    // slate-950
-                'surface' => Color::hex('#0f172a'),       // slate-900
-
-                'text' => Color::hex('#f1f5f9'),          // slate-100
-                'text-muted' => Color::hex('#94a3b8'),    // slate-400
+                'primary' => $corporateBlue,
+                
+                // Configuraciones de fondo y texto (manteniendo el fondo claro corporativo)
+                'background' => Color::hex('#ffffff'), // Fondo General Blanco
+                'surface' => Color::hex('#f8f9fa'),    // Tarjetas/Superficies Blanco Suave
+                
+                'text' => Color::hex('#212529'),       // Texto principal (Negro oscuro)
+                'text-muted' => Color::hex('#6c757d'), // Texto gris (Subtítulos)
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

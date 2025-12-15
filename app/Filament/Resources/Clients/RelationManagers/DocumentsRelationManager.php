@@ -42,6 +42,7 @@ class DocumentsRelationManager extends RelationManager
                 FileUpload::make('document_path')
                     ->label('Archivo PDF')
                     ->required()
+                    ->columnSpanFull()
                     ->disk('public') // Ajusta según tu configuración de discos
                     ->directory('documents')
                     ->acceptedFileTypes(['application/pdf']),

@@ -14,10 +14,13 @@ class Payments extends ChartWidget
     {
         $values = [1200, 500, 2200, 2000, 3100, 4500];
 
-        $colors = array_map(function ($value) {
+        // Componentes RGB del color corporativo: #003e65 => R=0, G=62, B=101
+        $corporateBlueRGBA = 'rgba(0, 62, 101, 0.8)'; // Color principal para Pagos/Ganancias
+
+        $colors = array_map(function ($value) use ($corporateBlueRGBA) {
             return $value >= 0
-                ? 'rgba(56, 189, 248, 0.8)'   // azul para ganancias
-                : 'rgba(248, 113, 113, 0.8)'; // rojo para pérdidas
+                ? $corporateBlueRGBA                // AZUL CORPORATIVO para pagos positivos
+                : 'rgba(248, 113, 113, 0.8)'; // Rojo suave para pérdidas/valores negativos
         }, $values);
 
         return [
