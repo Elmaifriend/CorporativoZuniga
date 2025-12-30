@@ -2,67 +2,69 @@
 
 namespace App\Filament\Resources\ClientCases\RelationManagers;
 
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
+use App\Models\User;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\TextColumn\MoneyColumn;
-use Filament\Tables\Table;
 
 class CommentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'comments';
 
+    protected static ?string $title = 'Comentarios y Seguimiento';
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Textarea::make('body')
-                    ->label('Comentario')
-                    ->required()
-                    ->rows(3)
+                Section::make('Nuevo Comentario')
                     ->columnSpanFull()
-                    ->maxLength(1000),
+                    ->schema([
+                        Textarea::make('body')
+                            ->label('Mensaje')
+                            ->required()
+                            ->rows(3)
+                            ->columnSpanFull()
+                            ->placeholder('Escribe aquí los detalles del seguimiento...')
+                            ->maxLength(1000),
 
-                Select::make('writed_by')
-                    ->label('Escrito por')
-                    ->relationship('writedBy', 'name') // asumiendo relación con User
-                    ->required(),
+                        Select::make('assigned_to')
+                            ->label('Asignar seguimiento a')
+                            ->options(User::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->prefixIcon('heroicon-m-user-plus'),
 
-                Select::make('assigned_to')
-                    ->label('Asignado a')
-                    ->relationship('assignedTo', 'name') // asumiendo relación con User
-                    ->required(),
+                        Select::make('status')
+                            ->label('Estatus del comentario')
+                            ->options([
+                                'Abierto' => 'Abierto',
+                                'Pendiente' => 'Pendiente',
+                                'Resuelto' => 'Resuelto',
+                            ])
+                            ->default('Abierto')
+                            ->required()
+                            ->native(false),
 
-                Select::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'Abierto' => 'Abierto',
-                        'Pendiente' => 'Pendiente',
-                        'Resuelto' => 'Resuelto',
-                    ])
-                    ->required(),
+                        Hidden::make('writed_by')
+                            ->default(fn() => auth()->id()),
 
-                Select::make('attended_by')
-                    ->label('Atendido por')
-                    ->relationship('attendedBy', 'name') // asumiendo relación con User
-                    ->nullable(),
-
-                DatePicker::make('solved_date')
-                    ->label('Fecha de resolución')
-                    ->nullable(),
+                        DatePicker::make('solved_date')
+                            ->label('Fecha Resolución')
+                            ->native(false)
+                            ->hidden(fn($get) => $get('status') !== 'Resuelto'),
+                    ])->columns(2),
             ]);
     }
 
@@ -70,56 +72,51 @@ class CommentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('body')
+            ->defaultSort('created_at', 'desc') // Lo más reciente primero
             ->columns([
+                // Columna tipo "Chat"
                 TextColumn::make('body')
                     ->label('Comentario')
-                    ->limit(50)
-                    ->searchable(),
-
-                TextColumn::make('writedBy.name')
-                    ->label('Escrito por')
-                    ->sortable()
+                    ->wrap()
+                    ->description(
+                        fn($record) =>
+                        $record->writedBy->name . ' • ' . $record->created_at->diffForHumans()
+                    )
                     ->searchable(),
 
                 TextColumn::make('assignedTo.name')
                     ->label('Asignado a')
-                    ->sortable()
-                    ->searchable(),
+                    ->icon('heroicon-m-user')
+                    ->color('gray')
+                    ->toggleable(),
 
-                BadgeColumn::make('status')
+                TextColumn::make('status')
                     ->label('Estado')
-                    ->colors([
-                        'success' => 'Resuelto',
-                        'warning' => 'Pendiente',
-                        'secondary' => 'Abierto',
-                    ])
-                    ->sortable(),
-
-                TextColumn::make('attendedBy.name')
-                    ->label('Atendido por')
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('solved_date')
-                    ->label('Fecha Resuelto')
-                    ->date()
-                    ->sortable(),
-            ])
-            ->filters([
-                //
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'Resuelto' => 'success',
+                        'Pendiente' => 'warning',
+                        'Abierto' => 'gray',
+                        default => 'gray',
+                    })
+                    ->icon(fn(string $state): string => match ($state) {
+                        'Resuelto' => 'heroicon-m-check',
+                        'Pendiente' => 'heroicon-m-clock',
+                        default => 'heroicon-m-chat-bubble-left',
+                    }),
             ])
             ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
+                CreateAction::make()
+                    ->slideOver()
+                    ->label('Agregar Comentario')
+                    ->modalWidth('md'),
             ])
             ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

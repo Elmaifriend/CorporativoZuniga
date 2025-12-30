@@ -3,40 +3,70 @@
 namespace App\Filament\Resources\Messages\Tables;
 
 use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
-
-
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\DeleteAction;
+use Illuminate\Database\Eloquent\Builder;
 
 class MessagesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('subject')
-                    ->label('Asunto')
+                TextColumn::make('sender.name')
+                    ->label('De')
+                    ->icon('heroicon-m-user-circle')
+                    ->sortable()
                     ->searchable(),
 
-                TextColumn::make('sender.name')
-                    ->label('Enviado por'),
+                TextColumn::make('subject')
+                    ->label('Asunto')
+                    ->weight('medium')
+                    ->searchable()
+                    ->description(fn ($record) => str($record->body)->stripTags()->limit(50)),
 
-                IconColumn::make('attended')
-                    ->label('Atendido')
-                    ->boolean()
-                    ->getStateUsing(fn ($record) =>
-                        $record->pivot?->attended_at !== null
-                    ),
+                TextColumn::make('created_at')
+                    ->label('Recibido')
+                    ->since() // "Hace 5 minutos"
+                    ->sortable()
+                    ->icon('heroicon-m-clock')
+                    ->color('gray'),
+
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $isAttended = $record->recipients()
+                            ->where('user_id', auth()->id())
+                            ->whereNotNull('attended_at')
+                            ->exists();
+
+                        return $isAttended ? 'Leído' : 'Nuevo';
+                    })
+                    ->colors([
+                        'success' => 'Leído',
+                        'primary' => 'Nuevo',
+                    ])
+                    ->icons([
+                        'heroicon-m-check-circle' => 'Leído',
+                        'heroicon-m-envelope' => 'Nuevo',
+                    ]),
             ])
             ->recordActions([
-                ViewAction::make(),
                 Action::make('attend')
-                    ->label('Marcar como atendido')
+                    ->label('Marcar Leído')
+                    ->icon('heroicon-m-check')
+                    ->color('primary')
                     ->visible(fn ($record) =>
-                        $record->pivot &&
-                        $record->pivot->attended_at === null
+                        ! $record->recipients()
+                            ->where('user_id', auth()->id())
+                            ->whereNotNull('attended_at')
+                            ->exists()
                     )
                     ->action(fn ($record) =>
                         $record->recipients()
@@ -44,6 +74,15 @@ class MessagesTable
                                 'attended_at' => now(),
                             ])
                     ),
+
+                ViewAction::make()
+                    ->modalHeading('Leer Mensaje')
+                    ->slideOver(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

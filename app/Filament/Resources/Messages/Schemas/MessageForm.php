@@ -5,8 +5,8 @@ namespace App\Filament\Resources\Messages\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\RichEditor;
 
 class MessageForm
 {
@@ -14,20 +14,33 @@ class MessageForm
     {
         return $schema
             ->components([
-                TextInput::make('subject')
-                ->required(),
+                Section::make('Redactar Mensaje')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->description('Envía notificaciones o actualizaciones a otros usuarios del sistema.')
+                    ->schema([
+                        Select::make('recipients')
+                            ->label('Destinatarios')
+                            ->multiple()
+                            ->relationship('recipients', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->prefixIcon('heroicon-m-users'),
 
-                Textarea::make('body')
-                    ->required()
-                    ->columnSpanFull(),
+                        TextInput::make('subject')
+                            ->label('Asunto')
+                            ->required()
+                            ->placeholder('Ej. Actualización del Caso #1234')
+                            ->prefixIcon('heroicon-m-chat-bubble-left-ellipsis'),
 
-                Select::make('recipients')
-                    ->label('Destinatarios')
-                    ->multiple()
-                    ->relationship('recipients', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+                        RichEditor::make('body')
+                            ->label('Mensaje')
+                            ->required()
+                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'attachFiles'])
+                            ->placeholder('Escribe aquí el contenido del mensaje...')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }
