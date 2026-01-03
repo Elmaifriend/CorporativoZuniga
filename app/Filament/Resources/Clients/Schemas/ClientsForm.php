@@ -3,80 +3,99 @@
 namespace App\Filament\Resources\Clients\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
 
 class ClientsForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(6) // Definimos un grid de 6 columnas para mejor control
             ->components([
+                Section::make('Información Personal')
+                    ->columnSpanFull()
+                    ->description('Datos básicos de identificación.')
+                    ->schema([
+                        TextInput::make('full_name')
+                            ->label('Nombre Completo / Razón Social')
+                            ->required()
+                            ->placeholder('Ej. Juan Pérez Hernández')
+                            ->prefixIcon('heroicon-m-user')
+                            ->columnSpanFull(),
 
-                /** Nombre completo: ocupa toda la fila */
-                TextInput::make('full_name')
-                    ->label("Nombre completo")
-                    ->required()
-                    ->placeholder("Ej. Juan Pérez Hernández")
-                    ->columnSpanFull(),
+                        Grid::make(3)->schema([
+                            Select::make('person_type')
+                                ->label('Tipo de Persona')
+                                ->options([
+                                    'persona_fisica' => 'Persona Física',
+                                    'persona_moral' => 'Persona Moral',
+                                ])
+                                ->required()
+                                ->native(false),
 
-                /** Contacto: teléfono, correo y fecha de nacimiento en la misma fila */
-                TextInput::make('phone_number')
-                    ->label("Teléfono")
-                    ->required()
-                    ->placeholder("Ej. 55-1234-5678")
-                    ->columnSpan(2),
+                            TextInput::make('occupation')
+                                ->label('Ocupación / Giro')
+                                ->placeholder('Ej. Abogado, Constructor...')
+                                ->prefixIcon('heroicon-m-briefcase'),
 
-                TextInput::make("email")
-                    ->label("Correo electrónico")
-                    ->email()
-                    ->placeholder("correo@ejemplo.com")
-                    ->columnSpan(2),
+                            DatePicker::make('date_of_birth')
+                                ->label('Fecha de Nacimiento')
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-calendar'),
+                        ]),
+                    ]),
 
-                DatePicker::make('date_of_birth')
-                    ->label("Fecha de nacimiento")
-                    ->columnSpan(2),
+                Section::make('Datos de Contacto')
+                    ->columnSpanFull()
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('phone_number')
+                                ->label('Teléfono Móvil')
+                                ->tel()
+                                ->required()
+                                ->placeholder('55-1234-5678')
+                                ->prefixIcon('heroicon-m-device-phone-mobile'),
 
-                /** Tipo de persona y ocupación */
-                Select::make('person_type')
-                    ->label("Tipo de persona")
-                    ->required()
-                    ->options([
-                        'persona_fisica' => 'Persona Física',
-                        'persona_moral' => 'Persona Moral',
-                    ])
-                    ->columnSpan(2),
+                            TextInput::make('email')
+                                ->label('Correo Electrónico')
+                                ->email()
+                                ->placeholder('cliente@ejemplo.com')
+                                ->prefixIcon('heroicon-m-at-symbol'),
+                        ]),
 
-                TextInput::make("occupation")
-                    ->label("Ocupación")
-                    ->placeholder("Ej. Abogado, Contador...")
-                    ->columnSpan(4),
+                        Textarea::make('address')
+                            ->label('Dirección Completa')
+                            ->rows(3)
+                            ->placeholder('Calle, Número, Colonia, Ciudad, Código Postal')
+                            ->columnSpanFull(),
+                    ]),
 
-                /** Identificaciones: CURP, RFC, INE */
-                TextInput::make("curp")
-                    ->label("CURP")
-                    ->required()
-                    ->placeholder("Ej. ABCD010101HDFRLL01")
-                    ->columnSpan(2),
+                Section::make('Documentación Fiscal')
+                    ->columnSpanFull()
+                    ->collapsed() // Opcional: Ocultar para limpiar la vista si no siempre se llena
+                    ->schema([
+                        Grid::make(3)->schema([
+                            TextInput::make('rfc')
+                                ->label('RFC')
+                                ->placeholder('ABCD010101XXX')
+                                ->prefixIcon('heroicon-m-identification')
+                                ->maxLength(13),
 
-                TextInput::make("rfc")
-                    ->label("RFC")
-                    ->placeholder("Ej. ABCD010101XXX")
-                    ->columnSpan(2),
+                            TextInput::make('curp')
+                                ->label('CURP')
+                                ->placeholder('ABCD010101HDFRLL01')
+                                ->prefixIcon('heroicon-m-finger-print')
+                                ->maxLength(18),
 
-                TextInput::make("ine_id")
-                    ->label("INE")
-                    ->columnSpan(2),
-
-                /** Dirección: ocupa toda la fila */
-                Textarea::make("address")
-                    ->label("Dirección")
-                    ->rows(4)
-                    ->placeholder("Calle, Número, Colonia, Ciudad, Estado, CP")
-                    ->columnSpanFull(),
+                            TextInput::make('ine_id')
+                                ->label('Clave INE / Pasaporte')
+                                ->prefixIcon('heroicon-m-credit-card'),
+                        ]),
+                    ]),
             ]);
     }
 }

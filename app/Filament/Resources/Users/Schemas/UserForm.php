@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Hash;
-
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 
 class UserForm
 {
@@ -14,32 +15,63 @@ class UserForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->label("Nombre")
-                    ->columnSpanFull(),
-                TextInput::make('email')
-                    ->label("Correo Electronico"),
-                Select::make('role')
-                    ->label("Role")
-                    ->options([
-                        'draft' => 'Abogado',
-                        'reviewing' => 'Contador',
-                        'published' => 'Administrador',
+                Section::make('Información de Acceso')
+                    ->columnSpanFull()
+                    ->description('Datos para iniciar sesión en el sistema.')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nombre Completo')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-m-user'),
+
+                                TextInput::make('email')
+                                    ->label('Correo Electrónico')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-m-at-symbol'),
+                            ]),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('password')
+                                    ->label('Contraseña')
+                                    ->password()
+                                    ->revealable()
+                                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                                    ->dehydrated(fn($state) => filled($state))
+                                    ->required(fn(string $operation): bool => $operation === 'create')
+                                    ->prefixIcon('heroicon-m-key'),
+
+                                TextInput::make('password_confirmation')
+                                    ->label('Confirmar Contraseña')
+                                    ->password()
+                                    ->revealable()
+                                    ->required(fn(string $operation): bool => $operation === 'create')
+                                    ->same('password')
+                                    ->dehydrated(false)
+                                    ->prefixIcon('heroicon-m-check-circle'),
+                            ]),
                     ]),
-                TextInput::make('password')
-                    ->label("Contraseña")
-                    ->password()
-                    ->maxLength(50)
-                    ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                    ->confirmed()
-                    ->columnSpanFull(),
-                TextInput::make('password_confirmation')
-                    ->label('Confirmar Contraseña')
-                    ->password()
-                    ->required()
-                    ->maxLength(50)
-                    ->same('password')
-                    ->columnSpanFull(),
+
+                Section::make('Permisos y Seguridad')
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('roles')
+                            ->label('Roles Asignados')
+                            ->multiple()
+                            ->relationship('roles', 'name')
+                            ->preload()
+                            ->searchable()
+                            ->required()
+                            ->columnSpanFull()
+                            ->prefixIcon('heroicon-m-shield-check')
+                            ->helperText('Define qué acciones puede realizar este usuario.'),
+                    ]),
             ]);
     }
 }

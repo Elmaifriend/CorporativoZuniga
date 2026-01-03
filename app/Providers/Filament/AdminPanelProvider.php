@@ -18,10 +18,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Filament\FontProviders\GoogleFontProvider;
 
 class AdminPanelProvider extends PanelProvider
 {
-    
+
     public function panel(Panel $panel): Panel
     {
         $corporateBlue = [
@@ -31,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             300 => '#5783a5',
             400 => '#2a618c',
             500 => '#004c7a',
-            600 => '#003e65', 
+            600 => '#003e65',
             700 => '#003050',
             800 => '#00213b',
             900 => '#001326',
@@ -43,14 +44,17 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->sidebarCollapsibleOnDesktop()
+            ->font('Inter')
             ->databaseNotifications()
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => $corporateBlue,
-                
+
                 // Configuraciones de fondo y texto (manteniendo el fondo claro corporativo)
                 'background' => Color::hex('#ffffff'), // Fondo General Blanco
                 'surface' => Color::hex('#f8f9fa'),    // Tarjetas/Superficies Blanco Suave
-                
+
                 'text' => Color::hex('#212529'),       // Texto principal (Negro oscuro)
                 'text-muted' => Color::hex('#6c757d'), // Texto gris (Subtítulos)
             ])
@@ -60,10 +64,7 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                //AccountWidget::class,
-                //FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

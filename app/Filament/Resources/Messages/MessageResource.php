@@ -25,9 +25,17 @@ class MessageResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Mensajes';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';    
-    
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+
     protected static ?string $model = Message::class;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::whereHas('recipients', function ($query) {
+            $query->where('user_id', auth()->id())
+                  ->whereNull('attended_at');
+        })->count() ?: null;
+    }
 
     public static function form(Schema $schema): Schema
     {

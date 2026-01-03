@@ -2,84 +2,115 @@
 
 namespace App\Filament\Resources\Clients\RelationManagers;
 
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
+use App\Models\User;
+use Filament\Tables\Table;
+use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\AssociateAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DissociateAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Actions\DissociateBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\View;
-use Filament\Schemas\Schema;
+use Tapp\FilamentProgressBarColumn\Tables\Columns\ProgressBarColumn; // Make sure to import this
 
 class CasesRelationManager extends RelationManager
 {
     protected static string $relationship = 'cases';
 
+    protected static ?string $title = 'Expedientes y Casos';
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('case_name')
-                    ->label('Nombre del Caso')
-                    ->required()
-                    ->maxLength(255),
+                Section::make('Información del Caso')
+                    ->columnSpanFull()
+                    ->schema([
+                        TextInput::make('case_name')
+                            ->label('Nombre del Asunto')
+                            ->placeholder('Ej. Divorcio Voluntario')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull()
+                            ->prefixIcon('heroicon-m-document-text'),
 
-                TextInput::make('responsable_lawyer')
-                    ->label('Abogado Responsable')
-                    ->required()
-                    ->maxLength(255),
+                        Grid::make(2)->schema([
+                            Select::make('responsable_lawyer')
+                                ->label('Abogado Responsable')
+                                ->options(User::pluck('name', 'name'))
+                                ->searchable()
+                                ->required()
+                                ->prefixIcon('heroicon-m-briefcase'),
 
-                Select::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'Abierto' => 'Abierto',
-                        'En Proceso' => 'En Proceso',
-                        'Pausado' => 'Pausado',
-                        'Cerrado' => 'Cerrado',
-                    ])
-                    ->required(),
+                            Select::make('case_type')
+                                ->label('Materia')
+                                ->options([
+                                    'Civil' => 'Civil',
+                                    'Mercantil' => 'Mercantil',
+                                    'Laboral' => 'Laboral',
+                                    'Penal' => 'Penal',
+                                    'Familiar' => 'Familiar',
+                                    'Administrativo' => 'Administrativo',
+                                ])
+                                ->native(false)
+                                ->required()
+                                ->prefixIcon('heroicon-m-scale'),
+                        ]),
+                    ]),
 
-                Select::make('case_type')
-                    ->label('Tipo de Caso')
-                    ->options([
-                        'Civil' => 'Civil',
-                        'Mercantil' => 'Mercantil',
-                        'Laboral' => 'Laboral',
-                        'Penal' => 'Penal',
-                        'Familiar' => 'Familiar',
-                        'Administrativo' => 'Administrativo',
-                    ])
-                    ->required(),
+                Section::make('Estado y Finanzas')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        Select::make('status')
+                            ->label('Estado Actual')
+                            ->options([
+                                'Abierto' => 'Abierto',
+                                'En Proceso' => 'En Proceso',
+                                'Pausado' => 'Pausado',
+                                'Cerrado' => 'Cerrado',
+                            ])
+                            ->required()
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-flag'),
 
-                DatePicker::make('start_date')
-                    ->label('Fecha de Inicio')
-                    ->required(),
+                        TextInput::make('total_pricing')
+                            ->label('Honorarios Totales')
+                            ->numeric()
+                            ->prefix('$')
+                            ->required(),
 
-                DatePicker::make('stimated_finish_date')
-                    ->label('Fecha Estimada de Cierre')
-                    ->required(),
+                        DatePicker::make('start_date')
+                            ->label('Fecha Inicio')
+                            ->required()
+                            ->native(false),
 
-                TextInput::make('total_pricing')
-                    ->label('Precio Total')
-                    ->numeric()
-                    ->required(),
+                        DatePicker::make('stimated_finish_date')
+                            ->label('Cierre Estimado')
+                            ->required()
+                            ->native(false),
+                    ]),
 
-                Textarea::make('resume')
-                    ->label('Resumen')
-                    ->rows(3)
-                    ->maxLength(1000)
-                    ->nullable(),
+                Section::make('Resumen')
+                    ->columnSpanFull()
+                    ->collapsed()
+                    ->schema([
+                        RichEditor::make('resume')
+                            ->hiddenLabel()
+                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList'])
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
@@ -89,55 +120,65 @@ class CasesRelationManager extends RelationManager
             ->recordTitleAttribute('case_name')
             ->columns([
                 TextColumn::make('case_name')
-                    ->label('Nombre del Caso')
+                    ->label('Caso')
                     ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('responsable_lawyer')
-                    ->label('Abogado Responsable')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->icon('heroicon-m-folder'),
 
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->colors([
-                        'success' => 'Cerrado',
-                        'warning' => 'En Proceso',
-                        'secondary' => 'Abierto',
-                        'danger' => 'Pausado',
-                    ])
-                    ->sortable(),
+                    ->icon(fn(string $state): string => match ($state) {
+                        'Abierto' => 'heroicon-m-lock-open',
+                        'En Proceso' => 'heroicon-m-arrow-path',
+                        'Pausado' => 'heroicon-m-pause-circle',
+                        'Cerrado' => 'heroicon-m-check-circle',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'Abierto' => 'info',
+                        'En Proceso' => 'primary',
+                        'Pausado' => 'warning',
+                        'Cerrado' => 'gray',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('case_type')
-                    ->label('Tipo de Caso')
+                    ->label('Materia')
+                    ->badge()
+                    ->color('gray')
+                    ->icon('heroicon-m-scale'),
+
+                ProgressBarColumn::make('paidPorcentage')
+                    ->label('Pagado')
+                    ->maxValue(100)
+                    ->lowThreshold(99)
+                    ->successLabel(fn($state) => $state . '%')
+                    ->warningLabel(fn($state) => $state . '%')
+                    ->dangerLabel(fn($state) => $state . '%')
+                    ->successColor('#004c7a')
+                    ->warningColor('#ea580c')
+                    ->dangerColor('#dc2626')
                     ->sortable(),
 
-                TextColumn::make('paidPorcentage')
-                    ->label('Porcentaje Pagado')
-                    ->suffix('%')
-                    ->sortable(),
-
-                TextColumn::make('start_date')
-                    ->label('Inicio')
-                    ->date()
-                    ->sortable(),
+                TextColumn::make('responsable_lawyer')
+                    ->label('Abogado')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->slideOver(),
                 AssociateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
                 ViewAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

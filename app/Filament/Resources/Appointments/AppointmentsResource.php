@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use Illuminate\Database\Eloquent\Builder;
 
 class AppointmentsResource extends Resource
 {
@@ -29,7 +30,10 @@ class AppointmentsResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $recordTitleAttribute = 'Appointments';
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'Pendiente')->count();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -48,9 +52,7 @@ class AppointmentsResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
