@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +6,82 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand: #004c7a;
+    --color-brand-light: #00629e;
+    --color-brand-dark: #003a5e;
+    --color-brand-50: #f0f7fb;
+    --color-brand-100: #e0effa;
+
+    --color-gold: #d4af37;
+    --color-gold-light: #f3e5ab;
+    --color-gold-50: #fffaf0;
+
+    --font-sans: "Inter", sans-serif;
+    --font-display: '"Plus Jakarta Sans"', sans-serif;
+
+    --radius-lg: 15px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+
+    --shadow-soft: 0 10px 40px -10px rgba(0, 76, 122, 0.1);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 20px rgba(0, 76, 122, 0.15);
+    --shadow-gold: 0 4px 25px rgba(212, 175, 55, 0.25);
+    --shadow-screen: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+details[open] summary ~ * {
+    animation: sweep 0.5s ease-in-out;
+}
+@keyframes sweep {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+html {
+    scroll-behavior: smooth;
 }
