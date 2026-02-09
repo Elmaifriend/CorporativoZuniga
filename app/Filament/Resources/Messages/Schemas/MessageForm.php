@@ -7,6 +7,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Toggle;
+
 
 class MessageForm
 {
@@ -40,6 +42,12 @@ class MessageForm
                             ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'attachFiles'])
                             ->placeholder('Escribe aquí el contenido del mensaje...')
                             ->columnSpanFull(),
+
+                        Toggle::make('notify_whatsapp')
+                            ->label('Notificar por WhatsApp')
+                            ->helperText('Enviar este mensaje también por WhatsApp')
+                            ->default(false)
+                            ->dehydrated(false)
                     ]),
             ]);
     }
