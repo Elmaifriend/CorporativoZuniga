@@ -67,7 +67,7 @@ class UserForm
                             ->relationship('roles', 'name')
                             ->preload()
                             ->searchable()
-                            ->required()
+                            //->required()
                             ->columnSpanFull()
                             ->prefixIcon('heroicon-m-shield-check')
                             ->helperText('Define qué acciones puede realizar este usuario.'),
