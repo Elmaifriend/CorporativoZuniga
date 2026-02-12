@@ -3,19 +3,20 @@
 namespace App\Filament\Resources\Clients\RelationManagers;
 
 use Filament\Tables\Table;
-use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Enums\RecordActionsPosition;
+
 
 class DocumentsRelationManager extends RelationManager
 {
@@ -26,6 +27,7 @@ class DocumentsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Clasificación del Documento')
                     ->schema([
@@ -34,23 +36,22 @@ class DocumentsRelationManager extends RelationManager
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->prefixIcon('heroicon-m-tag')
                             ->options([
                                 'Identidad' => [
                                     'acta_nacimiento' => 'Acta de nacimiento',
                                     'pasaporte' => 'Pasaporte',
                                     'curp' => 'CURP',
-                                    'identificacion_oficial' => 'Identificación oficial (INE/Cédula)',
+                                    'identificacion_oficial' => 'Identificación oficial',
                                     'acta_matrimonio' => 'Acta de matrimonio',
                                 ],
-                                'Migración (USCIS / INM)' => [
+                                'Migración' => [
                                     'formato_i130' => 'Petición familiar (I-130)',
                                     'formato_i485' => 'Ajuste de estatus (I-485)',
                                     'formato_i765' => 'Permiso de trabajo (I-765)',
                                     'visa_turista' => 'Visa de turista',
                                     'visa_trabajo' => 'Visa de trabajo',
                                 ],
-                                'Soporte y Otros' => [
+                                'Otros' => [
                                     'comprobante_domicilio' => 'Comprobante de domicilio',
                                     'antecedentes_penales' => 'Carta de antecedentes penales',
                                     'carta_empleador' => 'Carta del empleador',
@@ -58,50 +59,47 @@ class DocumentsRelationManager extends RelationManager
                                 ],
                             ]),
 
-                        Textarea::make('notes')
-                            ->label('Notas / Observaciones')
-                            ->rows(2)
-                            ->placeholder('Detalles adicionales sobre la vigencia o estado del documento...')
-                            ->maxLength(255),
+                        //Textarea::make('notes')->label('Notas')->rows(2)->maxLength(255),
                     ]),
 
-                Section::make('Archivo Adjunto')
+                Section::make('Archivo')
                     ->schema([
                         FileUpload::make('document_path')
-                            ->label('Cargar PDF')
+                            ->label('Archivo')
                             ->required()
                             ->disk('public')
-                            ->directory('client-documents') // Carpeta organizada
-                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                            ->directory('client-documents')
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'image/jpeg',
+                                'image/png'
+                            ])
                             ->openable()
                             ->downloadable()
                             ->columnSpanFull(),
-                    ])->collapsible(),
+                    ]),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('document_name')
+            ->recordUrl(fn ($record) => asset('storage/' . $record->document_path))
+            ->openRecordUrlInNewTab()
             ->columns([
                 TextColumn::make('document_name')
                     ->label('Documento')
                     ->searchable()
                     ->sortable()
-                    ->icon(fn (string $state): string => match ($state) {
-                        'pasaporte', 'visa_turista' => 'heroicon-m-globe-americas',
-                        'acta_nacimiento', 'acta_matrimonio' => 'heroicon-m-user-group',
-                        'curp', 'identificacion_oficial' => 'heroicon-m-identification',
-                        default => 'heroicon-m-document-text',
-                    })
-                    ->formatStateUsing(fn (string $state): string => str($state)->replace('_', ' ')->title()),
+                    ->formatStateUsing(
+                        fn (string $state): string =>
+                        str($state)->replace('_', ' ')->title()
+                    ),
 
                 TextColumn::make('created_at')
                     ->label('Subido el')
                     ->date('d M Y')
-                    ->sortable()
-                    ->color('gray'),
+                    ->sortable(),
 
                 TextColumn::make('notes')
                     ->label('Notas')
@@ -111,13 +109,14 @@ class DocumentsRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Subir Documento')
-                    ->slideOver()
-                    ->modalWidth('md'),
+                    ->modalWidth('6xl'),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make()
+                    ->modalWidth('6xl'),
                 DeleteAction::make(),
             ])
+            ->recordActionsPosition(RecordActionsPosition::AfterColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
