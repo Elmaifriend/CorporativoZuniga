@@ -2,13 +2,12 @@
 
 namespace App\Filament\Resources\Payments\Schemas;
 
-use App\Models\Client;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 
 class PaymentForm
 {
@@ -18,24 +17,22 @@ class PaymentForm
             ->components([
                 Section::make('Detalles del Ingreso')
                     ->columnSpanFull()
-                    ->description('Registre la información del pago recibido.')
                     ->schema([
+
                         Select::make('client_id')
                             ->label('Cliente')
                             ->relationship('client', 'full_name')
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->prefixIcon('heroicon-m-user')
-                            ->columnSpanFull()
-                            ->helperText('Seleccione el cliente que realiza el pago.'),
+                            ->live()
+                            ->columnSpanFull(),
 
                         Grid::make(2)->schema([
                             TextInput::make('amount')
                                 ->label('Monto Recibido')
                                 ->numeric()
                                 ->prefix('$')
-                                ->placeholder('0.00')
                                 ->required(),
 
                             Select::make('payment_metod')
@@ -43,29 +40,78 @@ class PaymentForm
                                 ->options([
                                     'Efectivo' => 'Efectivo',
                                     'Transferencia' => 'Transferencia Bancaria',
-                                    'Tarjeta de Crédito/Débito' => 'Tarjeta Crédito/Débito',
+                                    'Tarjeta' => 'Tarjeta Crédito/Débito',
                                     'Cheque' => 'Cheque',
                                     'Otro' => 'Otro',
                                 ])
                                 ->required()
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-credit-card'),
+                                ->native(false),
                         ]),
 
                         TextInput::make('concept')
-                            ->label('Concepto')
-                            ->placeholder('Ej. Honorarios iniciales, Gastos de gestión...')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpanFull()
-                            ->prefixIcon('heroicon-m-document-text'),
+                            ->columnSpanFull(),
 
                         TextInput::make('transaction_reference')
-                            ->label('Referencia / Folio')
-                            ->placeholder('Opcional: Núm. de autorización, rastreo SPEI...')
                             ->maxLength(255)
-                            ->columnSpanFull()
-                            ->prefixIcon('heroicon-m-qr-code'),
+                            ->columnSpanFull(),
+
+                        Select::make('paymentable_selector')
+                            ->label('¿Este pago pertenece a?')
+                            ->options([
+                                'case' => 'Un Caso',
+                                'recurrent' => 'Pago Recurrente (Iguala)',
+                            ])
+                            ->live()
+                            ->required()
+                            ->columnSpanFull(),
+
+                        Select::make('paymentable_id')
+                            ->label('Seleccionar Caso')
+                            ->options(function (Get $get) {
+                                if (!$get('client_id')) {
+                                    return [];
+                                }
+
+                                return \App\Models\ClientCase::where('client_id', $get('client_id'))
+                                    ->pluck('case_name', 'id')
+                                    ->toArray();
+                            })
+                            ->visible(fn (Get $get) =>
+                                $get('paymentable_selector') === 'case'
+                                && filled($get('client_id'))
+                            )
+                            ->dehydrated(fn (Get $get) =>
+                                $get('paymentable_selector') === 'case'
+                            )
+                            ->required(fn (Get $get) =>
+                                $get('paymentable_selector') === 'case'
+                            )
+                            ->columnSpanFull(),
+
+                        Select::make('recurrent_payment_id')
+                            ->label('Seleccionar Pago Recurrente')
+                            ->options(function (Get $get) {
+                                if (!$get('client_id')) {
+                                    return [];
+                                }
+
+                                return \App\Models\RecurrentPayment::where('client_id', $get('client_id'))
+                                    ->pluck('title', 'id')
+                                    ->toArray();
+                            })
+                            ->visible(fn (Get $get) =>
+                                $get('paymentable_selector') === 'recurrent'
+                                && filled($get('client_id'))
+                            )
+                            ->dehydrated(fn (Get $get) =>
+                                $get('paymentable_selector') === 'recurrent'
+                            )
+                            ->required(fn (Get $get) =>
+                                $get('paymentable_selector') === 'recurrent'
+                            )
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

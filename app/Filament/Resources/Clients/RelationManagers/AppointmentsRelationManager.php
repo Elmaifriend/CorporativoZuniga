@@ -121,7 +121,7 @@ class AppointmentsRelationManager extends RelationManager
 
                 TextColumn::make('responsable.name')
                     ->label('Abogado')
-                    ->icon('heroicon-m-user-circle')
+                    //->icon('heroicon-m-user-circle')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true), // Hidden by default to save space
 
@@ -132,7 +132,7 @@ class AppointmentsRelationManager extends RelationManager
                         'Confirmado' => 'heroicon-m-check-circle',
                         'Cancelada', 'Cancelado' => 'heroicon-m-x-circle',
                         'Pendiente' => 'heroicon-m-question-mark-circle',
-                        'Asistio' => 'heroicon-m-user-check',
+                        'Asistio' => 'heroicon-m-arrow-path',
                         'Reagendo' => 'heroicon-m-arrow-path',
                         default => 'heroicon-m-clock',
                     })

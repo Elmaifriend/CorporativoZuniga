@@ -12,12 +12,15 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        "client_id",
-        "amount",
-        "payment_metod",
-        "concept",
-        "transaction_reference",
+        'client_id',
+        'amount',
+        'payment_metod',
+        'concept',
+        'transaction_reference',
+        'paymentable_id',
+        'paymentable_type',
     ];
+
 
     public function paymentable(){
         return $this->morphTo();
