@@ -122,6 +122,7 @@ class AppointmentsForm
 
                         Textarea::make('reason')
                             ->label('Motivo')
+                            ->required()
                             ->columnSpanFull(),
 
                     ])
