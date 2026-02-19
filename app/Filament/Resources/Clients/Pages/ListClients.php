@@ -8,6 +8,8 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 
+
+
 class ListClients extends ListRecords
 {
     protected static string $resource = ClientsResource::class;
@@ -16,7 +18,6 @@ class ListClients extends ListRecords
     {
         return [
             CreateAction::make(),
-
         ];
     }
 
@@ -25,12 +26,15 @@ class ListClients extends ListRecords
         return [
             'all' => Tab::make()
                 ->label("Todos"),
-            'active' => Tab::make()
+            'fisica' => Tab::make()
                 ->label("Persona Fisica")
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('person_type', "persona_fisica")),
-            'inactive' => Tab::make()
+            'moral' => Tab::make()
                 ->label("Persona Moral")
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('person_type', "persona_moral")),
+            'prospecto' => Tab::make()
+                ->label("Prospectos")
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('client_type', "prospecto")),
         ];
     }
 }

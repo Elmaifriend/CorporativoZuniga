@@ -19,7 +19,7 @@ class ClientFactory extends Factory
     {
 
         $personTypes = ['persona_fisica', 'persona_moral'];
-        $clientTypes = ['Cliente', 'Prospecto']; 
+        $clientTypes = ['cliente', 'prospecto']; 
         $personType = $this->faker->randomElement($personTypes);
         
         return [
