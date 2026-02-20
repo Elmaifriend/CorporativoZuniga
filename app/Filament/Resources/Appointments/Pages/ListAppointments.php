@@ -7,6 +7,8 @@ use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 
 class ListAppointments extends ListRecords
 {
@@ -16,6 +18,24 @@ class ListAppointments extends ListRecords
     {
         return [
             CreateAction::make(),
+
+            Action::make('copiarLinkGenerarCita')
+                ->label('Copiar link para generar cita')
+                ->icon('heroicon-o-clipboard')
+                ->color('primary')
+                ->action(function () {
+
+                    $link = route('appointments.schedule'); // tu nombre de ruta
+
+                    $this->js("
+                        navigator.clipboard.writeText('{$link}');
+                    ");
+
+                    Notification::make()
+                        ->title('Link copiado correctamente')
+                        ->success()
+                        ->send();
+                }),
         ];
     }
 
