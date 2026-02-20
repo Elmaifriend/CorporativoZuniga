@@ -30,6 +30,16 @@ class AppointmentsResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'appointmentable',
+                'responsable',
+                'case',
+            ]);
+    }
+
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::where('status', 'Pendiente')->count();
