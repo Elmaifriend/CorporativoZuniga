@@ -16,11 +16,16 @@ return new class extends Migration
             $table->morphs("appointmentable");
             $table->dateTime("date_time");
             $table->text("reason"); //Rason de la cita
-            $table->string("status"); //Pendiente, Confirmada, Asistió, Canceló, Reagendó
+            $table->string('status')->default('pending');
             $table->unsignedBigInteger("case_id")->nullable();
             $table->unsignedBigInteger("responsable_lawyer")->nullable();
             $table->string("modality")->nullable(); //Presencial, virtual, o telefonica
             $table->longText("notes")->nullable();
+
+            $table->timestamp('reminder_sent_at')->nullable();
+            $table->timestamp('confirmed_by_reminder_at')->nullable();
+            $table->timestamp('reschedule_proposed_at')->nullable();
+
             $table->timestamps();
         });
     }

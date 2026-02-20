@@ -7,6 +7,7 @@ use App\Models\Appointments;
 use App\Models\Client;
 use App\Models\ClientCase;
 use App\Models\User;
+use App\Enums\AppointmentStatus;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Appointments>
@@ -20,12 +21,12 @@ class AppointmentsFactory extends Factory
         return [
             "date_time" => fake()->dateTimeBetween('now', '+1 year'),
             "reason" => fake()->sentence(),
-            "status" => fake()->randomElement(["Pendiente", "Confirmado", "Cancelado", "Asistio", "Reagendo"]),
-            "case_id" => ClientCase::inRandomOrder()->first(),
-            "responsable_lawyer" => User::inRandomOrder()->first(),
+            "status" => fake()->randomElement(AppointmentStatus::toArray()),
+            "case_id" => ClientCase::inRandomOrder()->value('id'),
+            "responsable_lawyer" => User::inRandomOrder()->value('id'),
             "modality" => fake()->randomElement(["Presencial", "Online", "Llamada"]),
             "notes" => fake()->paragraph(),
-            'appointmentable_id' => Client::inRandomOrder()->first(),
+            'appointmentable_id' => Client::inRandomOrder()->value('id'),
             'appointmentable_type' => Client::class,
         ];
     }

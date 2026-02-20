@@ -28,12 +28,12 @@ class AppointmentsInfolist
                                 TextEntry::make('status')
                                     ->label('Estado')
                                     ->badge()
-                                    ->color(fn(string $state): string => match ($state) {
+                                    /* ->   (fn(string $state): string => match ($state) {
                                         'Pendiente' => 'warning',
                                         'Confirmado' => 'success',
                                         'Cancelado' => 'danger',
                                         default => 'gray',
-                                    }),
+                                    })*/,
 
                                 TextEntry::make('modality')
                                     ->label('Modalidad')
