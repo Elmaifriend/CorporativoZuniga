@@ -28,7 +28,7 @@ class EditClients extends EditRecord
                 ->link()
                 ->icon('heroicon-o-trash'),
 
-            /* Action::make('convertirACliente')
+            Action::make('convertirACliente')
                 ->label('Convertir a cliente')
                 ->icon('heroicon-o-arrow-path')
                 ->color('success')
@@ -139,7 +139,7 @@ class EditClients extends EditRecord
             ->label('Editar Perfil')
             ->icon('heroicon-o-user')
             ->color('primary')
-            ->visible(fn () => $this->record->client_type === 'cliente'), */
+            ->visible(fn () => $this->record->client_type === 'cliente'),
         ];
     }
 }

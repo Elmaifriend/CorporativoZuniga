@@ -8,6 +8,7 @@ use App\Models\Appointments;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\NuevaCitaNotification;
+use App\Enums\AppointmentStatus;
 
 class ScheduleAppointment extends Component
 {
@@ -77,7 +78,7 @@ class ScheduleAppointment extends Component
             'appointmentable_type' => Client::class,
             'date_time' => $dateTime,
             'reason' => $this->reason,
-            'status' => 'scheduled',
+            'status' => AppointmentStatus::Pending,
             'modality' => $this->modality,
             'notes' => $this->notes,
         ]);

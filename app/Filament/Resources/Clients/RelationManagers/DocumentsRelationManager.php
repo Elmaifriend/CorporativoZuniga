@@ -16,6 +16,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Enums\RecordActionsPosition;
+use Illuminate\Support\Facades\Storage;
+
 
 
 class DocumentsRelationManager extends RelationManager
@@ -67,7 +69,7 @@ class DocumentsRelationManager extends RelationManager
                         FileUpload::make('document_path')
                             ->label('Archivo')
                             ->required()
-                            ->disk('public')
+                            ->disk('local')
                             ->directory('client-documents')
                             ->acceptedFileTypes([
                                 'application/pdf',
@@ -84,7 +86,7 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record) => asset('storage/' . $record->document_path))
+            ->recordUrl(fn ($record) => Storage::disk('public')->url($record->document_path))
             ->openRecordUrlInNewTab()
             ->columns([
                 TextColumn::make('document_name')
