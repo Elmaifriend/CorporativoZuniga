@@ -16,7 +16,7 @@ class ClientCase extends Model
         "case_name",
         "responsable_lawyer",
         "case_type",
-        "courtroom",
+        //"courtroom",
         "external_expedient_number",
         "resume",
         "start_date",
@@ -45,6 +45,24 @@ class ClientCase extends Model
                 
                 // Retorna el porcentaje redondeado a dos decimales
                 return round($percentage, 2);
+            },
+        );
+    }
+
+    protected function remainingBalance(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                $totalPricing = (float) $attributes['total_pricing'];
+                
+                // Sumamos lo pagado
+                $totalPaid = (float) $this->payments()->sum('amount');
+                
+                // Calculamos la deuda
+                $owed = $totalPricing - $totalPaid;
+                
+                // Usamos max(0, ...) por si el cliente pagó de más, para que no salga deuda negativa
+                return max(0, $owed);
             },
         );
     }

@@ -22,8 +22,16 @@ return new class extends Migration
             $table->dateTime("finish_date")->nullable();
             $table->dateTime("limit_date")->nullable();
             $table->string("priority");
+
+            $table->integer('installments')
+                ->default(0)
+                ->comment('Número de cuotas');
+
+            $table->string('installment_interval')
+                ->nullable()
+                ->comment('daily, weekly, monthly, yearly, custom');
+
             $table->integer("order");
-            $table->string("notes")->nullable();
             $table->timestamps();
 
             //Relationships

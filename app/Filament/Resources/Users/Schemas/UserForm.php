@@ -4,10 +4,11 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
-use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Select;
+
 
 class UserForm
 {
@@ -35,6 +36,23 @@ class UserForm
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-m-at-symbol'),
                             ]),
+
+                        Grid::make(2)
+                        ->schema([
+                            TextInput::make('telefono')
+                                ->label('Telefono Celular')
+                                ->required()
+                                ->maxLength(255)
+                                ->prefixIcon('heroicon-s-phone'),
+                            Select::make('status')
+                                ->label('Tiene WhatsApp')
+                                ->prefixIcon('heroicon-s-question-mark-circle')
+                                ->required()
+                                ->options([
+                                    'si' => 'Si',
+                                    'no' => 'No',
+                                ])
+                        ]),
 
                         Grid::make(2)
                             ->schema([

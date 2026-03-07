@@ -8,6 +8,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Support\Carbon;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
@@ -17,12 +18,14 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\Action;
+use App\Filament\Resources\Procedures\ProcedureResource; // Asegúrate de que la ruta sea correcta
 
 class ProceduresRelationManager extends RelationManager
 {
     protected static string $relationship = 'procedures';
 
-    protected static ?string $title = 'Trámites y Gestiones';
+    protected static ?string $title = 'Trámites';
 
     public function form(Schema $schema): Schema
     {
@@ -180,7 +183,13 @@ class ProceduresRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
-                CreateAction::make()->slideOver(),
+                Actions\Action::make('create_procedure')
+                    ->label('Crear Trámite')
+                    ->icon('heroicon-m-plus')
+                    ->button() // Fuerza a que se vea como el botón azul principal
+                    ->url(fn ($livewire) => ProcedureResource::getUrl('create', [
+                        'case_id' => $livewire->getOwnerRecord()->id,
+                    ])),
             ])
             ->recordActions([
                 ViewAction::make(),

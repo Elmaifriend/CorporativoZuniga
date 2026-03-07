@@ -37,7 +37,7 @@ class ClientCaseFactory extends Factory
             "case_name" => $this->faker->catchPhrase() . ' vs ' . $this->faker->lastName(),
             "responsable_lawyer" => $this->faker->name(), 
             "case_type" => $this->faker->randomElement($caseTypes),
-            "courtroom" => $this->faker->city() . ' Court',
+            //"courtroom" => $this->faker->city() . ' Court',
             "external_expedient_number" => strtoupper($this->faker->bothify('EXP-#####-??')),
             "resume" => $this->faker->paragraph(),
             "start_date" => $startDate,

@@ -11,6 +11,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Toggle;
+
 
 class ClientCaseForm
 {
@@ -63,12 +65,19 @@ class ClientCaseForm
                         Select::make('case_type')
                             ->label('Materia')
                             ->options([
-                                'Civil' => 'Civil',
-                                'Mercantil' => 'Mercantil',
-                                'Laboral' => 'Laboral',
-                                'Penal' => 'Penal',
-                                'Familiar' => 'Familiar',
-                                'Administrativo' => 'Administrativo',
+                                'criminales' => 'Criminales',
+                                'migratorios' => 'Migratorios',
+                            ])
+                            ->required()
+                            ->prefixIcon('heroicon-m-scale'),
+
+                        Select::make('case_sub_type')
+                            ->label('Categoria')
+                            ->options([
+                                'perdon' => 'Perdon',
+                                'peticion' => 'Peticion',
+                                "record" => "Record",
+                                "ciudadania" => "Ciudadania",
                             ])
                             ->required()
                             ->prefixIcon('heroicon-m-scale'),
@@ -90,12 +99,6 @@ class ClientCaseForm
                             ->placeholder('000/2025')
                             ->required()
                             ->prefixIcon('heroicon-m-hashtag'),
-
-                        TextInput::make('courtroom')
-                            ->label('Juzgado Asignado')
-                            ->placeholder('Juzgado Primero de lo Familiar...')
-                            ->required()
-                            ->prefixIcon('heroicon-m-building-library'),
                     ]),
 
                 Section::make('Cronograma y Presupuesto')
@@ -109,8 +112,11 @@ class ClientCaseForm
                                     ->label('Honorarios Totales')
                                     ->numeric()
                                     ->prefix('$')
+                                    ->suffix('USD')
                                     ->required()
-                                    ->helperText('Monto total acordado con el cliente.'),
+                                    ->helperText('Monto total acordado con el cliente en USD.'),
+                                Toggle::make('payment_plan')
+                                    ->label('Cobrar por caso')
                             ]),
 
                         Group::make()

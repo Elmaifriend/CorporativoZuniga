@@ -73,6 +73,14 @@ class ClientCasesTable
                     ->sortable()
                     ->width('1%'),
 
+                TextColumn::make('remaining_balance')
+                    ->label('Deuda / Total')
+                    ->money('USD') // Le pone el símbolo de dólar y formatea los decimales
+                    ->color(fn (string $state): string => $state > 0 ? 'danger' : 'success') // Rojo si debe, Verde si es $0.00
+                    ->weight('bold') // Negritas para que resalte
+                    ->description(fn ($record) => 'Total: $' . number_format((float) $record->total_pricing, 2))
+                    ->sortable(),
+
                 ProgressBarColumn::make('paidPorcentage')
                     ->label('Progreso de Pago')
                     ->maxValue(100)
