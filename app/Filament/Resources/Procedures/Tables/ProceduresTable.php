@@ -15,6 +15,7 @@ class ProceduresTable
     {
         return $table
             ->defaultSort('order', 'asc')
+            ->reorderable('order')
             ->columns([
                 TextColumn::make('title')
                     ->label('Gestión / Trámite')
