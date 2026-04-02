@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Procedures;
 
-use App\Filament\Resources\ClientCases\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Procedures\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Procedures\Pages\CreateProcedure;
 use App\Filament\Resources\Procedures\Pages\EditProcedure;
 use App\Filament\Resources\Procedures\Pages\ListProcedures;
