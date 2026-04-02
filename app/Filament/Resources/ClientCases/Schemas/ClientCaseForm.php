@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\ClientCases\Schemas;
 
+use App\Models\Client;
 use App\Models\User;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Group;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 
 class ClientCaseForm
@@ -43,7 +44,7 @@ class ClientCaseForm
                     ->description('Cliente y abogado responsable asignado.')
                     ->schema([
                         Select::make('client_id')
-                            ->relationship('client', 'full_name')
+                            ->options(Client::where('client_type', '!=', 'prospecto')->pluck('full_name', 'id'))
                             ->searchable()
                             ->preload()
                             ->required()
