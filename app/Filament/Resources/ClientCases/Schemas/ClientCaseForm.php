@@ -100,7 +100,7 @@ class ClientCaseForm
                                 ->label('Honorarios Totales')
                                 ->numeric()
                                 ->prefix('$')
-                                ->suffix('USD')
+                                ->suffix('MXN')
                                 ->required()
                                 ->live(onBlur: true)
                                 ->prefixIcon('heroicon-m-banknotes'),
