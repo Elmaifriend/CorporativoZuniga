@@ -25,7 +25,9 @@ class ProcedureResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderPlus;
 
-    protected static ?string $recordTitleAttribute = 'Tramites';
+    protected static ?string $modelLabel = 'Tramite';
+
+    protected static ?string $pluralModelLabel = 'Tramites';
 
     public static function form(Schema $schema): Schema
     {
