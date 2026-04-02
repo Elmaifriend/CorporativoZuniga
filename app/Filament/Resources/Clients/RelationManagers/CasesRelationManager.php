@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Clients\RelationManagers;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
@@ -182,5 +183,10 @@ class CasesRelationManager extends RelationManager
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->client_type !== 'prospecto';
     }
 }
