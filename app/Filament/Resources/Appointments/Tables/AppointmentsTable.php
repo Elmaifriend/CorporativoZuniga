@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\Appointments\Tables;
 
+use App\Enums\AppointmentStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\AppointmentStatus;
+use Illuminate\Support\Carbon;
 
 class AppointmentsTable
 {
@@ -23,6 +24,7 @@ class AppointmentsTable
                     ->label("Fecha")
                     ->dateTime('l d M Y, h:i A')
                     ->sortable()
+                    ->description(fn($record) => Carbon::parse($record->date_time)->diffForHumans())
                     ->searchable(),
 
                 TextColumn::make('appointmentable.full_name')
