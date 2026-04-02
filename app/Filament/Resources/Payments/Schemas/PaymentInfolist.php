@@ -29,7 +29,7 @@ class PaymentInfolist
                                 ->date('d F Y, H:i A')
                                 ->icon('heroicon-m-calendar'),
 
-                            TextEntry::make('payment_metod')
+                            TextEntry::make('payment_method')
                                 ->label('Método de Pago')
                                 ->badge(),
 
