@@ -15,7 +15,10 @@ class CreateProcedure extends CreateRecord
     protected function afterCreate(): void
     {
         $procedure = $this->record;
-        $data = $this->form->getState();
+        
+        // ¡AQUÍ ESTÁ LA MAGIA! getRawState() recupera todos los datos, 
+        // incluso los que tienen ->dehydrated(false)
+        $data = $this->form->getRawState();
 
         $totalCost = (float) ($data['total_cost'] ?? 0);
         $initialCost = (float) ($data['initial_cost'] ?? 0);

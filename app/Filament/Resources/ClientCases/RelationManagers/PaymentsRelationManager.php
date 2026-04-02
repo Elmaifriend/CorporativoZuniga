@@ -25,7 +25,7 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
-    protected static ?string $title = 'Control de Cobranza';
+    protected static ?string $title = 'Pagos';
 
     public function form(Schema $schema): Schema
     {

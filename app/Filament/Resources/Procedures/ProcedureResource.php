@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Resources\Procedures\RelationManagers\DocumentsRelationManager;
 
 
 class ProcedureResource extends Resource
@@ -50,6 +51,7 @@ class ProcedureResource extends Resource
     {
         return [
             PaymentsRelationManager::class,
+            DocumentsRelationManager::class,
         ];
     }
 

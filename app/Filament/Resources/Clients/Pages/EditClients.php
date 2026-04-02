@@ -70,12 +70,12 @@ class EditClients extends EditRecord
                         Notification::make()->title('Enlace de actualización copiado')->success()->send();
                     }),
             ])
-                ->label('Actualizar Datos')
-                ->icon('heroicon-m-user-circle')
-                ->button()
-                ->color('gray')
-                ->outlined()
-                ->visible(fn() => $this->record->client_type === 'cliente'),
+            ->label('Actualizar Datos')
+            ->icon('heroicon-m-user-circle')
+            ->button()
+            ->color('gray')
+            ->outlined()
+            ->visible(fn() => $this->record->client_type === 'cliente'),
 
             ActionGroup::make([
                 Action::make('mandarLinkDocumentos')

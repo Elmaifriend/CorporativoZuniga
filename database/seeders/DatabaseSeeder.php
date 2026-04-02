@@ -36,16 +36,15 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ClientSeeder::class,
-            ClientDocumentSeeder::class,
             ClientCaseSeeder::class,
             CommentSeeder::class,
             ProcedureSeeder::class,
-            ProcedureDocumentSeeder::class,
             RecurrentPaymentSeeder::class,
             PaymentSeeder::class,
             AppointmentsSeeder::class,
             CommentSeeder::class,
             InternalAnnouncementSeeder::class,
+            DocumentSeeder::class,
         ]);
     }
 }

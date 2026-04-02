@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string("case_name")->index();
             $table->string("responsable_lawyer");
             $table->string("case_type")->index();
+            $table->string("case_sub_type")->nullable()->index();
+            $table->string('billing_mode')->default('by_case');
             //$table->string("courtroom"); //Traducir a ingles
             $table->string("external_expedient_number")->index();
             $table->longText("resume");
@@ -24,7 +26,7 @@ return new class extends Migration
             $table->DateTime("stimated_finish_date");
             $table->DateTime("real_finished_date")->nullable();
             $table->string("status")->index(); 
-            $table->string("total_pricing"); //Traducir a ingles ( honorarios? )
+            $table->string("total_pricing")->default(0);
             $table->timestamps();
 
             //Relationships

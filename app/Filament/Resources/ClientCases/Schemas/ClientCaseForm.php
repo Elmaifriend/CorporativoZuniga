@@ -8,10 +8,13 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class ClientCaseForm
 {
@@ -66,20 +69,30 @@ class ClientCaseForm
                     ->icon('heroicon-m-scale')
                     ->columnSpan(4)
                     ->schema([
+                        // NIVEL 1: Categoría Principal (Migratorio / Criminal)
                         Select::make('case_type')
-                            ->label('Materia')
+                            ->label('Materia Principal')
                             ->options([
+                                'Migratorio' => 'Migratorio',
                                 'Criminal' => 'Criminal',
-                                'Mercantil' => 'Mercantil',
-                                'Laboral' => 'Laboral',
-                                'Penal' => 'Penal',
-                                'Familiar' => 'Familiar',
-                                'Administrativo' => 'Administrativo',
                             ])
-                            ->live()
                             ->native(false)
                             ->required()
                             ->prefixIcon('heroicon-m-tag'),
+
+                        // NIVEL 2: Sub-categoría estática
+                        Select::make('case_sub_type')
+                            ->label('Trámite Específico')
+                            ->options([
+                                'Perdón' => 'Perdón',
+                                'Petición' => 'Petición',
+                                'Record' => 'Record',
+                                'Visa' => 'Visa',
+                                'Ciudadanía' => 'Ciudadanía',
+                            ])
+                            ->native(false)
+                            ->required()
+                            ->prefixIcon('heroicon-m-queue-list'),
 
                         Select::make('status')
                             ->label('Estatus del Caso')
@@ -97,43 +110,113 @@ class ClientCaseForm
                 Section::make('Presupuesto y Control')
                     ->icon('heroicon-m-currency-dollar')
                     ->columnSpan(8)
-                    ->columns(2)
                     ->schema([
-                        Grid::make(1)->columnSpan(1)->schema([
-                            TextInput::make('total_pricing')
-                                ->label('Honorarios Totales')
-                                ->numeric()
-                                ->prefix('$')
-                                ->suffix('MXN')
-                                ->required()
-                                ->live(onBlur: true)
-                                ->prefixIcon('heroicon-m-banknotes'),
+                        ToggleButtons::make('billing_mode')
+                            ->label('Modelo de Facturación')
+                            ->options([
+                                'by_case' => 'Cobrar por Caso (Global)',
+                                'by_procedure' => 'Cobrar por Trámite',
+                            ])
+                            ->colors([
+                                'by_case' => 'info',
+                                'by_procedure' => 'warning',
+                            ])
+                            ->icons([
+                                'by_case' => 'heroicon-m-globe-alt',
+                                'by_procedure' => 'heroicon-m-document-duplicate',
+                            ])
+                            ->default('by_case')
+                            ->inline()
+                            ->live()
+                            ->required()
+                            ->columnSpanFull(),
 
-                            TextEntry::make('financial_status')
-                                ->label('Balance Actual')
-                                ->state(fn($record) => $record
-                                    ? "Pagado: {$record->paidPorcentage}% | Deuda: $" . number_format($record->remainingBalance, 2)
-                                    : 'Defina el precio total para ver el balance.')
-                                ->extraAttributes(['class' => 'text-sm text-gray-500 italic']),
-                        ]),
+                        Grid::make(2)->schema([
+                            // LADO IZQUIERDO: Campos financieros
+                            Grid::make(1)
+                                ->columnSpan(1)
+                                ->visible(fn (Get $get) => $get('billing_mode') === 'by_case')
+                                ->schema([
+                                    TextInput::make('total_pricing')
+                                        ->label('Honorarios Totales')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->suffix('MXN')
+                                        ->required(fn (Get $get) => $get('billing_mode') === 'by_case')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateInstallments($set, $get))
+                                        ->prefixIcon('heroicon-m-banknotes'),
 
-                        Grid::make(1)->columnSpan(1)->schema([
-                            DatePicker::make('start_date')
-                                ->label('Fecha de Inicio')
-                                ->required()
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-calendar'),
+                                    TextInput::make('initial_cost')
+                                        ->label('Anticipo / Inicial')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->suffix('MXN')
+                                        ->hiddenOn('edit')
+                                        ->dehydrated(false)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateInstallments($set, $get))
+                                        ->prefixIcon('heroicon-m-arrow-right-circle'),
 
-                            DatePicker::make('stimated_finish_date')
-                                ->label('Cierre Estimado')
-                                ->required()
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-calendar-days'),
+                                    TextInput::make('installments')
+                                        ->label('Nº de Cuotas')
+                                        ->numeric()
+                                        ->hiddenOn('edit')
+                                        ->dehydrated(false)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateInstallments($set, $get))
+                                        ->prefixIcon('heroicon-m-calculator'),
 
-                            DatePicker::make('real_finished_date')
-                                ->label('Cierre Real')
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-check-badge'),
+                                    TextInput::make('installment_amount')
+                                        ->label('Monto por Cuota')
+                                        ->prefix('$')
+                                        ->suffix('MXN')
+                                        ->disabled()
+                                        ->hiddenOn('edit')
+                                        ->dehydrated(false)
+                                        ->extraInputAttributes(['class' => 'font-bold text-primary-600 dark:text-primary-400']),
+
+                                    Select::make('installment_interval')
+                                        ->label('Periodicidad')
+                                        ->options([
+                                            'weekly' => 'Semanal',
+                                            'biweekly' => 'Quincenal',
+                                            'monthly' => 'Mensual',
+                                            'yearly' => 'Anual',
+                                        ])
+                                        ->hiddenOn('edit')
+                                        ->dehydrated(false)
+                                        ->native(false)
+                                        ->prefixIcon('heroicon-m-calendar-days'),
+
+                                    TextEntry::make('financial_status')
+                                        ->label('Balance Actual')
+                                        ->state(fn($record) => $record
+                                            ? "Pagado: {$record->paidPorcentage}% | Deuda: $" . number_format($record->remainingBalance, 2)
+                                            : 'Defina el precio total para ver el balance.')
+                                        ->extraAttributes(['class' => 'text-sm text-gray-500 italic'])
+                                        ->hiddenOn('create'),
+                                ]),
+
+                            // LADO DERECHO: Fechas
+                            Grid::make(1)->columnSpan(1)->schema([
+                                DatePicker::make('start_date')
+                                    ->label('Fecha de Inicio')
+                                    ->required()
+                                    ->native(false)
+                                    ->prefixIcon('heroicon-m-calendar'),
+
+                                DatePicker::make('stimated_finish_date')
+                                    ->label('Cierre Estimado')
+                                    ->required()
+                                    ->native(false)
+                                    ->prefixIcon('heroicon-m-calendar-days'),
+
+                                DatePicker::make('real_finished_date')
+                                    ->label('Cierre Real')
+                                    ->native(false)
+                                    ->prefixIcon('heroicon-m-check-badge'),
+                            ]),
                         ]),
                     ]),
 
@@ -148,5 +231,19 @@ class ClientCaseForm
                             ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link']),
                     ]),
             ]);
+    }
+
+    private static function calculateInstallments(Set $set, Get $get): void
+    {
+        $total = (float) $get('total_pricing');
+        $initial = (float) $get('initial_cost');
+        $installments = (int) $get('installments');
+
+        if ($installments > 0) {
+            $remaining = max(0, $total - $initial);
+            $set('installment_amount', number_format($remaining / $installments, 2, '.', ''));
+        } else {
+            $set('installment_amount', '0.00');
+        }
     }
 }

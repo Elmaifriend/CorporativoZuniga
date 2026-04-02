@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Clients\RelationManagers;
+namespace App\Filament\Resources\ClientCases\RelationManagers;
 
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
@@ -20,7 +20,7 @@ class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
-    protected static ?string $title = 'Expediente Digital';
+    protected static ?string $title = 'Documentos del Caso';
 
     public function form(Schema $schema): Schema
     {
@@ -37,21 +37,21 @@ class DocumentsRelationManager extends RelationManager
                             ->required()
                             ->prefixIcon('heroicon-m-document-magnifying-glass')
                             ->options([
-                                'Identidad' => [
-                                    'acta_nacimiento' => 'Acta de nacimiento',
-                                    'pasaporte' => 'Pasaporte',
-                                    'curp' => 'CURP',
-                                    'identificacion_oficial' => 'Identificación oficial (INE)',
+                                'Generales del Caso' => [
+                                    'contrato_servicios' => 'Contrato de Prestación de Servicios',
+                                    'poder_notarial' => 'Poder Notarial / Carta Poder',
+                                    'estrategia_legal' => 'Estrategia Legal (Interno)',
                                 ],
-                                'Migración' => [
-                                    'formato_i130' => 'Petición familiar (I-130)',
-                                    'formato_i485' => 'Ajuste de estatus (I-485)',
-                                    'formato_i765' => 'Permiso de trabajo (I-765)',
-                                    'visa_turista' => 'Visa de turista',
+                                'Evidencia' => [
+                                    'documental_publica' => 'Prueba Documental Pública',
+                                    'documental_privada' => 'Prueba Documental Privada',
+                                    'material_multimedia' => 'Fotos / Audio / Video',
+                                ],
+                                'Resoluciones' => [
+                                    'acuerdos' => 'Acuerdos / Convenios',
+                                    'sentencia_definitiva' => 'Sentencia Definitiva',
                                 ],
                                 'Otros' => [
-                                    'comprobante_domicilio' => 'Comprobante de domicilio',
-                                    'antecedentes_penales' => 'Antecedentes penales',
                                     'otro' => 'Otro documento',
                                 ],
                             ]),
@@ -64,7 +64,7 @@ class DocumentsRelationManager extends RelationManager
                             ->label('Documento Digitalizado')
                             ->required()
                             ->disk('public')
-                            ->directory('documents')
+                            ->directory('documents') // Carpeta homologada
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
                             ->maxSize(5120)
                             ->openable()
