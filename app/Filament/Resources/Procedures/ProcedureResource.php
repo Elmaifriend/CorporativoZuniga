@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Procedures;
 
-use App\Filament\Resources\ClientCases\RelationManagers\PaymentsRelationManager;
+use App\Filament\Resources\Procedures\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Procedures\Pages\CreateProcedure;
 use App\Filament\Resources\Procedures\Pages\EditProcedure;
 use App\Filament\Resources\Procedures\Pages\ListProcedures;
@@ -25,7 +25,16 @@ class ProcedureResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderPlus;
 
-    protected static ?string $recordTitleAttribute = 'Tramites';
+    protected static ?string $modelLabel = 'Tramite';
+
+    protected static ?string $pluralModelLabel = 'Tramites';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'clientCase.case_name'];
+    }
 
     public static function form(Schema $schema): Schema
     {

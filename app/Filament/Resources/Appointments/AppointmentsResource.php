@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Appointments;
 
+use App\Enums\AppointmentStatus;
 use App\Filament\Resources\Appointments\Pages\CreateAppointments;
 use App\Filament\Resources\Appointments\Pages\EditAppointments;
 use App\Filament\Resources\Appointments\Pages\ListAppointments;
@@ -42,7 +43,7 @@ class AppointmentsResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', 'Pendiente')->count();
+        return static::getModel()::where('status', AppointmentStatus::Pending)->count();
     }
 
     public static function form(Schema $schema): Schema

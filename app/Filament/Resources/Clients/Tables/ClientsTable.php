@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clients\Tables;
 
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -42,9 +43,28 @@ class ClientsTable
                 TextColumn::make('phone_number')
                     ->label('Teléfono')
                     ->icon('heroicon-m-phone')
-                    ->color('gray') // Color suave para datos secundarios
+                    ->color('gray')
                     ->searchable()
                     ->copyable(),
+
+                TextColumn::make('client_type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->icon(fn(string $state): string => match ($state) {
+                        'cliente' => 'heroicon-m-user-group',
+                        'prospecto' => 'heroicon-m-user-plus',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'cliente' => 'primary',
+                        'prospecto' => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'cliente' => 'Cliente',
+                        'prospecto' => 'Prospecto',
+                        default => $state,
+                    }),
 
                 TextColumn::make('email')
                     ->label('Correo')
@@ -52,11 +72,11 @@ class ClientsTable
                     ->color('gray')
                     ->searchable()
                     ->copyable()
-                    ->toggleable(isToggledHiddenByDefault: false), // Puedes ocultarlo si prefieres
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('rfc')
                     ->label('RFC')
-                    ->toggleable(isToggledHiddenByDefault: true) // Oculto por defecto
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
             ])
             ->filters([

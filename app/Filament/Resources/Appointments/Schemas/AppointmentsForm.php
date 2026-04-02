@@ -2,132 +2,157 @@
 
 namespace App\Filament\Resources\Appointments\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
+use App\Enums\AppointmentStatus;
+use App\Models\Client;
+use App\Models\ClientCase;
 use Filament\Forms\Components\DateTimePicker;
-
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 
 class AppointmentsForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->columns(1)
+            ->columns(2)
             ->components([
-
-                Section::make('Tipo de cita')
+                Section::make('Configuración de la Cita')
+                    ->description('Defina el origen del interesado y la modalidad de la reunión.')
+                    ->icon('heroicon-m-cog-6-tooth')
+                    ->columns(2)
                     ->schema([
-
                         Select::make('appointment_mode')
-                            ->label('¿Es cliente o prospecto?')
+                            ->label('Origen del interesado')
                             ->options([
-                                'client' => 'Cliente',
-                                'prospect' => 'Prospecto',
+                                'client' => 'Cliente Existente',
+                                'prospect' => 'Nuevo Prospecto',
                             ])
+                            ->default('client')
                             ->live()
                             ->required()
+                            ->disabledOn('edit')
                             ->dehydrated(false)
-                            ->columnSpanFull(),
+                            ->prefixIcon('heroicon-m-identification'),
 
-                    ])
-                    ->columnSpanFull(),
+                        Select::make('modality')
+                            ->label('Modalidad')
+                            ->options([
+                                'Presencial' => 'Presencial',
+                                'Online' => 'Online',
+                                'Llamada' => 'Llamada',
+                            ])
+                            ->required()
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-video-camera'),
+                    ]),
 
-                Section::make('Seleccionar cliente')
+                Section::make('Identificación del Cliente')
+                    ->description('Seleccione al cliente y el caso legal vinculado.')
+                    ->icon('heroicon-m-user')
+                    ->visible(fn (Get $get) => $get('appointment_mode') === 'client')
                     ->schema([
-
                         Select::make('appointmentable_id')
                             ->label('Cliente')
-                            ->options(\App\Models\Client::pluck('full_name', 'id'))
+                            ->placeholder('Busque por nombre...')
+                            ->options(Client::where('client_type', '!=', 'prospecto')->pluck('full_name', 'id'))
                             ->searchable()
+                            ->disabledOn('edit')
                             ->live()
-                            ->required()
-                            ->visible(fn (Get $get) => $get('appointment_mode') === 'client')
-                            ->columnSpanFull(),
+                            ->required(fn (Get $get) => $get('appointment_mode') === 'client')
+                            ->columnSpanFull()
+                            ->prefixIcon('heroicon-m-magnifying-glass'),
 
                         Select::make('case_id')
-                            ->label('Caso (opcional)')
-                            ->options(function (Get $get) {
-
-                                $clientId = $get('appointmentable_id');
-
-                                if (!$clientId) {
-                                    return [];
-                                }
-
-                                return \App\Models\ClientCase::where('client_id', $clientId)
+                            ->label('Caso relacionado')
+                            ->placeholder('Seleccione un expediente activo (opcional)')
+                            ->options(fn (Get $get) =>
+                                ClientCase::where('client_id', $get('appointmentable_id'))
                                     ->pluck('case_name', 'id')
-                                    ->toArray();
-                            })
-                            ->searchable()
-                            ->reactive()
-                            ->visible(fn (Get $get) =>
-                                $get('appointment_mode') === 'client'
-                                && filled($get('appointmentable_id'))
                             )
-                            ->columnSpanFull(),
+                            ->searchable()
+                            ->visible(fn (Get $get) => filled($get('appointmentable_id')))
+                            ->columnSpanFull()
+                            ->prefixIcon('heroicon-m-briefcase'),
+                    ]),
 
-                    ]) // 👈 ESTE ERA EL QUE FALTABA
-                    ->visible(fn (Get $get) => $get('appointment_mode') === 'client')
-                    ->columnSpanFull(),
-
-                Section::make('Datos del prospecto')
+                Section::make('Datos del Nuevo Prospecto')
+                    ->description('Información básica para el registro inicial del interesado.')
+                    ->icon('heroicon-m-user-plus')
+                    ->visible(fn (Get $get) => $get('appointment_mode') === 'prospect')
                     ->schema([
-
                         TextInput::make('prospect_full_name')
                             ->label('Nombre completo')
-                            ->required()
-                            ->columnSpanFull(),
+                            ->placeholder('Ej. María García López')
+                            ->disabledOn('edit')
+                            ->required(fn (Get $get) => $get('appointment_mode') === 'prospect')
+                            ->prefixIcon('heroicon-m-user-circle'),
 
-                        TextInput::make('prospect_phone')
-                            ->label('Teléfono')
-                            ->columnSpanFull(),
+                        Grid::make(2)->schema([
+                            TextInput::make('prospect_phone')
+                                ->label('Teléfono de contacto')
+                                ->placeholder('55 1234 5678')
+                                ->tel()
+                                ->disabledOn('edit')
+                                ->required(fn (Get $get) => $get('appointment_mode') === 'prospect')
+                                ->prefixIcon('heroicon-m-phone'),
 
-                        TextInput::make('prospect_email')
-                            ->label('Correo')
-                            ->email()
-                            ->columnSpanFull(),
-
+                            TextInput::make('prospect_email')
+                                ->label('Correo electrónico')
+                                ->placeholder('prospecto@ejemplo.com')
+                                ->disabledOn('edit')
+                                ->email()
+                                ->prefixIcon('heroicon-m-envelope'),
+                        ]),
                     ])
-                    ->visible(fn (Get $get) => $get('appointment_mode') === 'prospect')
-                    ->dehydrated(false)
-                    ->columnSpanFull(),
+                    ->dehydrated(false),
 
-                Section::make('Información de la cita')
+                Section::make('Programación y Responsable')
+                    ->description('Establezca la fecha, hora y el abogado encargado de la atención.')
+                    ->icon('heroicon-m-calendar-days')
+                    ->columns(3)
+                    ->columnSpanFull()
                     ->schema([
-
                         DateTimePicker::make('date_time')
                             ->label('Fecha y hora')
                             ->required()
-                            ->columnSpanFull(),
+                            ->seconds(false)
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-clock'),
 
                         Select::make('responsable_lawyer')
+                            ->label('Abogado responsable')
                             ->relationship('responsable', 'name')
                             ->required()
-                            ->columnSpanFull(),
+                            ->preload()
+                            ->searchable()
+                            ->prefixIcon('heroicon-m-academic-cap'),
 
                         Select::make('status')
-                            ->options([
-                                'pending' => 'Pendiente',
-                                'confirmed' => 'Confirmada',
-                                'cancelled' => 'Cancelada',
-                            ])
-                            ->default('pending')
+                            ->label('Estado de la cita')
+                            ->options(AppointmentStatus::options())
+                            ->default(AppointmentStatus::Pending)
                             ->required()
-                            ->columnSpanFull(),
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-arrow-path-rounded-square'),
+                    ]),
 
+                Section::make('Información del Asunto')
+                    ->icon('heroicon-m-chat-bubble-bottom-center-text')
+                    ->columnSpanFull()
+                    ->schema([
                         Textarea::make('reason')
-                            ->label('Motivo')
+                            ->label('Motivo de la cita')
+                            ->placeholder('Describa brevemente el asunto a tratar o notas importantes...')
+                            ->rows(4)
+                            ->autosize()
                             ->required()
                             ->columnSpanFull(),
-
-                    ])
-                    ->columnSpanFull(),
-
+                    ]),
             ]);
     }
 }

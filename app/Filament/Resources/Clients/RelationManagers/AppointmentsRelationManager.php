@@ -2,39 +2,38 @@
 
 namespace App\Filament\Resources\Clients\RelationManagers;
 
-use Carbon\Carbon;
+use App\Enums\AppointmentStatus;
 use App\Models\User;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\RichEditor;
-use Filament\Actions\DissociateBulkAction;
+use Carbon\Carbon;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Illuminate\Database\Eloquent\Model;
 
 class AppointmentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'appointments';
 
-    protected static ?string $title = 'Agenda y Citas';
+    protected static ?string $title = 'Historial de Citas';
 
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Section::make('Detalles de la Cita')
-                    ->columnSpanFull()
+                Section::make('Programación y Motivo')
+                    ->icon('heroicon-m-calendar-days')
+                    ->columns(3)
                     ->schema([
                         DateTimePicker::make('date_time')
                             ->label('Fecha y Hora')
@@ -44,55 +43,51 @@ class AppointmentsRelationManager extends RelationManager
                             ->prefixIcon('heroicon-m-clock'),
 
                         TextInput::make('reason')
-                            ->label('Motivo / Asunto')
-                            ->placeholder('Ej. Primera consulta sobre divorcio')
+                            ->label('Asunto de la Cita')
+                            ->placeholder('Ej: Revisión de pruebas para el caso...')
                             ->required()
-                            ->maxLength(255)
-                            ->prefixIcon('heroicon-m-chat-bubble-bottom-center-text'),
+                            ->columnSpan(2)
+                            ->prefixIcon('heroicon-m-chat-bubble-left-ellipsis'),
+                    ]),
 
+                Section::make('Logística y Responsable')
+                    ->icon('heroicon-m-cog-6-tooth')
+                    ->columns(3)
+                    ->schema([
                         Select::make('responsable_lawyer')
-                            ->label('Abogado Responsable')
-                            // Assuming 'responsable' is a User relation
+                            ->label('Abogado Asignado')
                             ->options(User::pluck('name', 'id'))
                             ->searchable()
                             ->required()
-                            ->prefixIcon('heroicon-m-user'),
-                    ])->columns(3),
+                            ->prefixIcon('heroicon-m-user-circle'),
 
-                Section::make('Estatus y Logística')
-                        ->columnSpanFull()
-                    ->schema([
                         Select::make('status')
-                            ->label('Estado Actual')
-                            ->options([
-                                'Pendiente' => 'Pendiente',
-                                'Confirmado' => 'Confirmado',
-                                'Cancelada' => 'Cancelada', // Fixed typo 'Cancelado' -> 'Cancelada' usually used in DB
-                                'Asistio' => 'Asistió',
-                                'Reagendo' => 'Reagendado',
-                            ])
+                            ->label('Estado')
+                            ->options(AppointmentStatus::options())
+                            ->default(AppointmentStatus::Pending->value)
                             ->required()
                             ->native(false)
-                            ->prefixIcon('heroicon-m-check-circle'),
+                            ->prefixIcon('heroicon-m-flag'),
 
                         Select::make('modality')
                             ->label('Modalidad')
                             ->options([
-                                'Presencial' => 'Presencial (Oficina)',
-                                'Online' => 'Online (Zoom/Meet)',
-                                'Llamada' => 'Llamada Telefónica',
+                                'Presencial' => 'Presencial',
+                                'Online' => 'Videollamada',
+                                'Llamada' => 'Telefónica',
                             ])
                             ->required()
                             ->native(false)
                             ->prefixIcon('heroicon-m-video-camera'),
-                    ])->columns(2),
+                    ]),
 
-                Section::make('Notas Internas')
-                                ->columnSpanFull()
+                Section::make('Notas de la Sesión')
+                    ->icon('heroicon-m-document-text')
                     ->collapsed()
                     ->schema([
                         RichEditor::make('notes')
                             ->hiddenLabel()
+                            ->placeholder('Registre aquí los acuerdos o puntos clave tratados en la cita...')
                             ->toolbarButtons(['bold', 'italic', 'bulletList'])
                             ->columnSpanFull(),
                     ]),
@@ -106,75 +101,54 @@ class AppointmentsRelationManager extends RelationManager
             ->defaultSort('date_time', 'desc')
             ->columns([
                 TextColumn::make('date_time')
-                    ->label('Fecha')
+                    ->label('Fecha y Hora')
                     ->formatStateUsing(fn($state) => ucfirst(Carbon::parse($state)->translatedFormat('D d M, h:i A')))
-                    ->description(fn($record) => Carbon::parse($record->date_time)->diffForHumans()) // "in 2 days"
+                    ->description(fn($record) => Carbon::parse($record->date_time)->diffForHumans())
                     ->sortable()
                     ->icon('heroicon-m-calendar'),
 
                 TextColumn::make('reason')
-                    ->label('Motivo')
-                    ->limit(40)
-                    ->tooltip(fn($record) => $record->reason)
+                    ->label('Asunto')
                     ->searchable()
-                    ->weight('medium'),
+                    ->wrap()
+                    ->limit(50),
 
                 TextColumn::make('responsable.name')
                     ->label('Abogado')
-                    //->icon('heroicon-m-user-circle')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true), // Hidden by default to save space
+                    ->size('sm')
+                    ->color('gray')
+                    ->toggleable(),
 
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->icon(fn(string $state): string => match ($state) {
-                        'Confirmado' => 'heroicon-m-check-circle',
-                        'Cancelada', 'Cancelado' => 'heroicon-m-x-circle',
-                        'Pendiente' => 'heroicon-m-question-mark-circle',
-                        'Asistio' => 'heroicon-m-arrow-path',
-                        'Reagendo' => 'heroicon-m-arrow-path',
-                        default => 'heroicon-m-clock',
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'Confirmado' => 'success',
-                        'Asistio' => 'info',
-                        'Cancelada', 'Cancelado' => 'danger',
-                        'Reagendo' => 'warning',
-                        'Pendiente' => 'gray',
-                        default => 'gray',
-                    }),
+                    ->color(fn(AppointmentStatus $state): string => $state->color())
+                    ->formatStateUsing(fn(AppointmentStatus $state): string => $state->label()),
 
                 TextColumn::make('modality')
                     ->label('Modalidad')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Online' => 'info',
-                        'Presencial' => 'primary',
-                        'Llamada' => 'warning',
-                        default => 'gray',
-                    })
+                    ->color('gray')
                     ->icon(fn(string $state): string => match ($state) {
                         'Online' => 'heroicon-m-wifi',
                         'Presencial' => 'heroicon-m-building-office',
                         'Llamada' => 'heroicon-m-phone',
-                        default => 'heroicon-m-video-camera',
+                        default => 'heroicon-m-question-mark-circle',
                     }),
             ])
             ->headerActions([
-                CreateAction::make()->slideOver(),
-                AssociateAction::make(),
+                CreateAction::make()
+                    ->label('Agendar Cita')
+                    ->icon('heroicon-m-plus-circle')
+                    ->slideOver(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make()->slideOver(),
+                ViewAction::make()->icon('heroicon-m-eye'),
+                EditAction::make()
+                    ->label('Gestionar')
+                    ->icon('heroicon-m-pencil-square')
+                    ->slideOver(),
                 DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

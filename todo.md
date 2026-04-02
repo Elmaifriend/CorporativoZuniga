@@ -1,0 +1,33 @@
+- Appointment Form, No se deben mostar los que tienen el label de prospecto
+- En la tabla del resource de citas deben aparecer por mas reciente
+- Pagina de crear cita debe de guardar correctamente los datos del cliente, Prospecto != prospecto
+- Revisar que los actions de una cita funcionen
+- Cuando se modifica una cita que se pueda enviar un mensaje con los cambios de la cita
+- Mover la tab de todos al final en la tabla de citas
+- Mejorar formulario de enviar documentos de un cliente
+- En el action de pedir documentos debe poder enviarse por whatsapp el link
+- En el action de editar perfil checar la notificacion y poder enviarse por whatsapp
+- No carga el numero de citas en la barra
+- En el formulario de agendar cita solo deberia mostrar clientes no prospectos
+- Un boton a nivel de caso para generar documentos o pedir por whatsapp
+- Los actions de cita deben de enviar un mensaje por whatsapp (reagendar es una propuesta)
+- Los casos deben de tener documentos (agregar case documents)
+- Los tramites en casos deben poder consultarse en el formulario del recurso, no un popup
+- Pedir documentos por link y whatsapp para citas, casos, procesos
+- Podrer enviar por whatsapp link para cita en la tabla
+- Link para agendar cita a nivel cliente para no pedir numero y enviarse por whatsapp
+- Agregar tabs de hoy y manana a la tabla de citas
+- En pago solo se muestran clientes no prospectos
+- En el formulario de pago en "Este caso pertenece a ?" anadir la opcion de agregar un pago a un tramite
+- Quitar orden del formulario de caso
+
+
+- Crear sistema de notificaciones de pago pendiente a nivel pago, es un recordatorio por pago
+- Debe de haber un toggle de notificar de pago pendiente, a nivel pago
+- Fecha de last reminded -> checar cuando se recordo la ultima vez
+- payment status -> enum pagado, pendiente, pago parcial, cancelado
+- notification status -> enum, not_reminded (sin notificar), early_reminder (recordatorio previo a pago), reminder (dia acordado), late_reminder (atrasado)
+- agregar el agreed_date para la fecha de cuando se debe pagar en base a si es mensual, bimestral, etc
+- Una vez paga el toggle de notificar y el notification status queda como disabled
+- Agregar payment method al modelo paymantalbe
+- ^- Todos estos son para el modelo paymentable

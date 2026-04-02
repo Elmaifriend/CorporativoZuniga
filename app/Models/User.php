@@ -16,7 +16,8 @@ class User extends Authenticatable implements FilamentUser
     protected $fillable = [
         'name',
         'email',
-        "phone_number",
+        'phone_number',
+        'has_wa',
         'password',
     ];
 
@@ -30,6 +31,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'has_wa' => 'boolean',
         ];
     }
 

@@ -5,9 +5,8 @@ namespace App\Filament\Resources\Messages\Pages;
 use App\Filament\Resources\Messages\MessageResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Schemas\Components\Tabs\Tab;
-
+use Illuminate\Database\Eloquent\Builder;
 
 class ListMessages extends ListRecords
 {
@@ -16,20 +15,28 @@ class ListMessages extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Redactar Mensaje')
+                ->icon('heroicon-m-pencil-square'),
         ];
     }
 
     protected function getTableQuery(): Builder
     {
-        return auth()->user()->receivedMessages()->getQuery();
+        return static::getResource()::getEloquentQuery()
+            ->where(function (Builder $query) {
+                $query->where('sender_id', auth()->id())
+                    ->orWhereHas('recipients', fn ($q) =>
+                        $q->where('users.id', auth()->id())
+                    );
+            });
     }
 
     public function getTabs(): array
     {
         return [
-            'received' => Tab::make('Recibidos')
-                ->icon('heroicon-o-inbox')
+            'received' => Tab::make('Bandeja de Entrada')
+                ->icon('heroicon-m-inbox')
                 ->modifyQueryUsing(fn (Builder $query) =>
                     $query->whereHas('recipients', fn ($q) =>
                         $q->where('users.id', auth()->id())
@@ -37,13 +44,14 @@ class ListMessages extends ListRecords
                 ),
 
             'sent' => Tab::make('Enviados')
-                ->icon('heroicon-o-paper-airplane')
+                ->icon('heroicon-m-paper-airplane')
                 ->modifyQueryUsing(fn (Builder $query) =>
                     $query->where('sender_id', auth()->id())
                 ),
 
             'all' => Tab::make('Todos')
-                ->icon('heroicon-o-archive-box'),
+                ->label('Historial Completo')
+                ->icon('heroicon-m-archive-box'),
         ];
     }
 

@@ -28,11 +28,11 @@ class MessagesTable
                     ->label('Asunto')
                     ->weight('medium')
                     ->searchable()
-                    ->description(fn ($record) => str($record->body)->stripTags()->limit(50)),
+                    ->description(fn($record) => str($record->body)->stripTags()->limit(50)),
 
                 TextColumn::make('created_at')
                     ->label('Recibido')
-                    ->since() // "Hace 5 minutos"
+                    ->since()
                     ->sortable()
                     ->icon('heroicon-m-clock')
                     ->color('gray'),
@@ -62,13 +62,15 @@ class MessagesTable
                     ->label('Marcar Leído')
                     ->icon('heroicon-m-check')
                     ->color('primary')
-                    ->visible(fn ($record) =>
-                        ! $record->recipients()
-                            ->where('user_id', auth()->id())
-                            ->whereNotNull('attended_at')
+                    ->visible(
+                        fn($record) =>
+                        $record->recipients()
+                            ->where('users.id', auth()->id())
+                            ->wherePivotNull('attended_at')
                             ->exists()
                     )
-                    ->action(fn ($record) =>
+                    ->action(
+                        fn($record) =>
                         $record->recipients()
                             ->updateExistingPivot(auth()->id(), [
                                 'attended_at' => now(),

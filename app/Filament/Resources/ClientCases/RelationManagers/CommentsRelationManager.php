@@ -22,32 +22,34 @@ class CommentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'comments';
 
-    protected static ?string $title = 'Comentarios';
+    protected static ?string $title = 'Bitácora de Seguimiento';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Nuevo Comentario')
+                Section::make('Detalles del Seguimiento')
+                    ->description('Registre los avances, llamadas o acuerdos relacionados con el caso.')
                     ->columnSpanFull()
                     ->schema([
                         Textarea::make('body')
-                            ->label('Mensaje')
+                            ->label('Nota de Seguimiento')
+                            ->placeholder('Ej: Se realizó llamada con el cliente para solicitar documentación faltante...')
                             ->required()
-                            ->rows(3)
+                            ->rows(4)
+                            ->autosize()
                             ->columnSpanFull()
-                            ->placeholder('Escribe aquí los detalles del seguimiento...')
                             ->maxLength(1000),
 
                         Select::make('assigned_to')
-                            ->label('Asignar seguimiento a')
+                            ->label('Asignar a')
+                            ->placeholder('Responsable...')
                             ->options(User::pluck('name', 'id'))
                             ->searchable()
-                            ->preload()
-                            ->prefixIcon('heroicon-m-user-plus'),
+                            ->preload(),
 
                         Select::make('status')
-                            ->label('Estatus del comentario')
+                            ->label('Estado de la Nota')
                             ->options([
                                 'Abierto' => 'Abierto',
                                 'Pendiente' => 'Pendiente',
@@ -55,15 +57,17 @@ class CommentsRelationManager extends RelationManager
                             ])
                             ->default('Abierto')
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-flag'),
 
                         Hidden::make('writed_by')
                             ->default(fn() => auth()->id()),
 
                         DatePicker::make('solved_date')
-                            ->label('Fecha Resolución')
+                            ->label('Fecha de Resolución')
                             ->native(false)
-                            ->hidden(fn($get) => $get('status') !== 'Resuelto'),
+                            ->hidden(fn($get) => $get('status') !== 'Resuelto')
+                            ->required(fn($get) => $get('status') === 'Resuelto'),
                     ])->columns(2),
             ]);
     }
@@ -72,21 +76,23 @@ class CommentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('body')
-            ->defaultSort('created_at', 'desc') // Lo más reciente primero
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                // Columna tipo "Chat"
                 TextColumn::make('body')
-                    ->label('Comentario')
+                    ->label('Nota / Comentario')
                     ->wrap()
-                    ->description(
-                        fn($record) =>
-                        $record->writedBy->name . ' • ' . $record->created_at->diffForHumans()
-                    )
-                    ->searchable(),
+                    ->searchable()
+                    ->description(function ($record) {
+                        $author = $record->writedBy?->name ?? 'Sistema';
+                        $date = $record->created_at->diffForHumans();
+                        return "Escrito por {$author} • {$date}";
+                    })
+                    ->extraAttributes(['class' => 'py-2']),
 
                 TextColumn::make('assignedTo.name')
                     ->label('Asignado a')
-                    ->icon('heroicon-m-user')
+                    ->placeholder('Sin asignar')
+                    ->icon('heroicon-m-user-circle')
                     ->color('gray')
                     ->toggleable(),
 
@@ -96,24 +102,30 @@ class CommentsRelationManager extends RelationManager
                     ->color(fn(string $state): string => match ($state) {
                         'Resuelto' => 'success',
                         'Pendiente' => 'warning',
-                        'Abierto' => 'gray',
+                        'Abierto' => 'info',
                         default => 'gray',
                     })
                     ->icon(fn(string $state): string => match ($state) {
-                        'Resuelto' => 'heroicon-m-check',
+                        'Resuelto' => 'heroicon-m-check-circle',
                         'Pendiente' => 'heroicon-m-clock',
-                        default => 'heroicon-m-chat-bubble-left',
+                        'Abierto' => 'heroicon-m-chat-bubble-bottom-center-text',
+                        default => 'heroicon-m-minus-circle',
                     }),
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label('Nueva Nota')
+                    ->icon('heroicon-m-plus-circle')
                     ->slideOver()
-                    ->label('Agregar Comentario')
                     ->modalWidth('md'),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->label('Editar')
+                    ->icon('heroicon-m-pencil-square')
+                    ->slideOver(),
+                DeleteAction::make()
+                    ->icon('heroicon-m-trash'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

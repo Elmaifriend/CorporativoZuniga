@@ -40,10 +40,10 @@ class PaymentsTable
                     ->alignEnd()
                     ->summarize(Sum::make()->label('Total')->money('MXN')),
 
-                TextColumn::make('payment_metod')
+                TextColumn::make('payment_method')
                     ->label('Método')
                     ->badge()
-                    ->icon(fn (string $state): string => match ($state) {
+                    ->icon(fn(string $state): string => match ($state) {
                         'Efectivo' => 'heroicon-m-banknotes',
                         'Transferencia' => 'heroicon-m-arrows-right-left',
                         default => 'heroicon-m-credit-card',
@@ -59,7 +59,7 @@ class PaymentsTable
                     ->label('Concepto')
                     ->limit(30)
                     ->searchable()
-                    ->tooltip(fn ($record) => $record->concept),
+                    ->tooltip(fn($record) => $record->concept),
 
                 TextColumn::make('transaction_reference')
                     ->label('Ref.')

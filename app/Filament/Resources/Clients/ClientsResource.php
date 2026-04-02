@@ -22,10 +22,11 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class ClientsResource extends Resource
-{   
+{
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static string | UnitEnum | null $navigationGroup = 'Clientes';
@@ -36,14 +37,16 @@ class ClientsResource extends Resource
 
     protected static ?string $model = Client::class;
 
+    protected static ?string $recordTitleAttribute = 'full_name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['full_name', 'email', 'phone_number'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ClientsForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return ClientsInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

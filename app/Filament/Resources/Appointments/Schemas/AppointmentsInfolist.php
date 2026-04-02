@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Appointments\Schemas;
 
+use App\Enums\AppointmentStatus;
 use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
@@ -28,12 +29,8 @@ class AppointmentsInfolist
                                 TextEntry::make('status')
                                     ->label('Estado')
                                     ->badge()
-                                    /* ->   (fn(string $state): string => match ($state) {
-                                        'Pendiente' => 'warning',
-                                        'Confirmado' => 'success',
-                                        'Cancelado' => 'danger',
-                                        default => 'gray',
-                                    })*/,
+                                    ->formatStateUsing(fn (AppointmentStatus $state) => $state->label())
+                                    ->color(fn (AppointmentStatus $state) => $state->color()),
 
                                 TextEntry::make('modality')
                                     ->label('Modalidad')

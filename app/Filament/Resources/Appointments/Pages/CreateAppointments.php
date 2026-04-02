@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Appointments\Pages;
 
 use App\Filament\Resources\Appointments\AppointmentsResource;
+use App\Models\Client;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\DB;
 
 class CreateAppointments extends CreateRecord
 {
@@ -11,32 +13,28 @@ class CreateAppointments extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        if ($this->data['appointment_mode'] === 'prospect') {
+        if (($this->data['appointment_mode'] ?? null) === 'prospect') {
 
-            $client = \App\Models\Client::create([
-                'full_name'      => $this->data['prospect_full_name'],
-                'person_type'    => 'persona_fisica',
-                'client_type'    => 'prospecto',
-                'phone_number'   => $this->data['prospect_phone'] ?? 'N/A',
-                'email'          => $this->data['prospect_email'] ?? null,
-                'curp'           => null,
-                'rfc'            => null,
-                'address'        => null,
-                'ine_id'         => null,
-                'occupation'     => null,
-                'date_of_birth'  => null,
-            ]);
+            return DB::transaction(function () use ($data) {
+                $client = Client::create([
+                    'full_name'    => $this->data['prospect_full_name'],
+                    'phone_number' => $this->data['prospect_phone'] ?? '',
+                    'email'        => $this->data['prospect_email'] ?? null,
+                    'client_type'  => 'prospecto',
+                    'person_type'  => 'persona_fisica',
+                ]);
 
-            $data['appointmentable_id']   = $client->id;
-            $data['appointmentable_type'] = \App\Models\Client::class;
+                $data['appointmentable_id']   = $client->id;
+                $data['appointmentable_type'] = Client::class;
+
+                return $data;
+            });
         }
 
-        if ($this->data['appointment_mode'] === 'client') {
-            $data['appointmentable_type'] = \App\Models\Client::class;
+        if (($this->data['appointment_mode'] ?? null) === 'client') {
+            $data['appointmentable_type'] = Client::class;
         }
 
         return $data;
     }
-
-
 }

@@ -3,9 +3,8 @@
 namespace App\Filament\Resources\InternalAnnouncements\Pages;
 
 use App\Filament\Resources\InternalAnnouncements\InternalAnnouncementResource;
-use App\Jobs\SendAnnouncementWhatsappJob;
 use App\Models\User;
-use App\Notifications\InternalAnnouncementCreated;
+use App\WhatsApp\WhatsApp;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateInternalAnnouncement extends CreateRecord
@@ -22,15 +21,18 @@ class CreateInternalAnnouncement extends CreateRecord
     {
         $notifyWhatsapp = $this->data['notify_whatsapp'] ?? false;
 
-        User::query()->each(function (User $user) use ($notifyWhatsapp) {
+        if (! $notifyWhatsapp) {
+            return;
+        }
 
-            $user->notify(
-                new InternalAnnouncementCreated($this->record)
-            );
+        User::query()
+            ->where('has_wa', true)
+            ->whereNotNull('phone_number')
+            ->each(function (User $user) {
+                $message = "📢 *NUEVO ANUNCIO*: {$this->record->title}\n\n" .
+                    "Puedes revisarlo en el sistema.";
 
-            if ($notifyWhatsapp && $user->phone_number) {
-                SendAnnouncementWhatsappJob::dispatch( announcementId: $this->record->id, userId: $user->id );
-            }
-        });
+                WhatsApp::sendText($user->phone_number, $message);
+            });
     }
 }

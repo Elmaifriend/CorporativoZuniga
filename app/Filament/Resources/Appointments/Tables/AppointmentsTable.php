@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources\Appointments\Tables;
 
+use App\Enums\AppointmentStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\AppointmentStatus;
+use Illuminate\Support\Carbon;
 
 class AppointmentsTable
 {
@@ -23,6 +24,7 @@ class AppointmentsTable
                     ->label("Fecha")
                     ->dateTime('l d M Y, h:i A')
                     ->sortable()
+                    ->description(fn($record) => Carbon::parse($record->date_time)->diffForHumans())
                     ->searchable(),
 
                 TextColumn::make('appointmentable.full_name')
@@ -48,7 +50,7 @@ class AppointmentsTable
                     })
                     ->color(fn (string $state): string => match ($state) {
                         'Presencial' => 'primary',
-                        'Online' => 'info', // Changed to info for blue distinction
+                        'Online' => 'info',
                         'Llamada' => 'warning',
                         default => 'gray',
                     }),
@@ -56,37 +58,19 @@ class AppointmentsTable
                 TextColumn::make("status")
                     ->label("Estatus")
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        AppointmentStatus::Pending->value => 'warning',
-                        AppointmentStatus::Confirmed->value => 'success',
-                        AppointmentStatus::Cancelled->value => 'danger',
-                        AppointmentStatus::Completed->value => 'success',
-                        AppointmentStatus::RescheduleProposed->value => 'info',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        AppointmentStatus::Pending->value => 'Pendiente',
-                        AppointmentStatus::Confirmed->value => 'Confirmada',
-                        AppointmentStatus::Cancelled->value => 'Cancelada',
-                        AppointmentStatus::Completed->value => 'Completada',
-                        AppointmentStatus::RescheduleProposed->value => 'Reprogramación propuesta',
-                        AppointmentStatus::Rejected => 'Rechazada',
-                        AppointmentStatus::NoShow => 'No asistió',
-                        default => ucfirst($state),
-                    }),
+                    ->color(fn (AppointmentStatus $state) => $state->color())
+                    ->formatStateUsing(fn (AppointmentStatus $state): string => $state->label()),
             ])
-            ->defaultSort('date_time', 'desc') // Show newest/upcoming first
+            ->defaultSort('date_time', 'asc')
             ->filters([
-                // Filter 1: Quick Status check
                 SelectFilter::make('status')
                     ->label('Estatus')
                     ->options(AppointmentStatus::options()),
 
-                // Filter 2: Show only future appointments
                 Filter::make('future')
                     ->label('Próximas Citas')
                     ->query(fn (Builder $query): Builder => $query->where('date_time', '>=', now()))
-                    ->default(), // UX: Default to showing upcoming appointments
+                    ->default(),
             ])
             ->recordActions([
                 ViewAction::make(),

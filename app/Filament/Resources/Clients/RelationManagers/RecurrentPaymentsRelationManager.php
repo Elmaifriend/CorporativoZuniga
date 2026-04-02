@@ -2,93 +2,99 @@
 
 namespace App\Filament\Resources\Clients\RelationManagers;
 
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\DissociateBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Illuminate\Database\Eloquent\Model;
 
 class RecurrentPaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'recurrentPayments';
-
-    protected static ?string $title = 'Planes de Pago Recurrentes';
+    protected static ?string $title = 'Cobros Recurrentes';
 
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Section::make('Detalles del Plan')
-                    ->columnSpanFull()
-                    ->description('Configure la periodicidad y montos del cobro automático.')
+                Section::make('Definición del Contrato')
+                    ->icon('heroicon-m-document-duplicate')
+                    ->description('Establezca las condiciones del cobro periódico (Igualada).')
                     ->schema([
                         TextInput::make('title')
-                            ->label('Nombre del Plan')
-                            ->placeholder('Ej. Igualada Mensual 2025')
+                            ->label('Nombre del Plan / Concepto')
+                            ->placeholder('Ej: Igualada Jurídica Mensual - 2026')
                             ->required()
-                            ->maxLength(255)
-                            ->prefixIcon('heroicon-m-tag')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->prefixIcon('heroicon-m-tag'),
 
                         Grid::make(3)->schema([
                             TextInput::make('amount')
-                                ->label('Monto Recurrente')
-                                ->required()
+                                ->label('Cuota Recurrente')
                                 ->numeric()
                                 ->prefix('$')
-                                ->placeholder('0.00'),
+                                ->required()
+                                ->prefixIcon('heroicon-m-banknotes')
+                                ->extraInputAttributes(['class' => 'font-bold']),
 
                             Select::make('frecuency')
-                                ->label('Frecuencia')
-                                ->required()
+                                ->label('Frecuencia de Cobro')
                                 ->options([
+                                    'Semanal' => 'Semanal',
                                     'Mensual' => 'Mensual',
                                     'Bimestral' => 'Bimestral',
                                     'Trimestral' => 'Trimestral',
                                     'Anual' => 'Anual',
                                 ])
+                                ->required()
                                 ->native(false)
-                                ->prefixIcon('heroicon-m-clock'),
+                                ->prefixIcon('heroicon-m-arrow-path'),
 
                             TextInput::make('agreed_payment_day')
                                 ->label('Día de Corte')
                                 ->numeric()
-                                ->prefix('Día')
-                                ->suffix('del mes')
                                 ->minValue(1)
                                 ->maxValue(28)
-                                ->required(),
+                                ->suffix('de cada mes')
+                                ->required()
+                                ->prefixIcon('heroicon-m-calendar'),
                         ]),
 
-                        Select::make('status')
-                            ->label('Estado Actual')
-                            ->required()
-                            ->options([
-                                'Activo' => 'Activo',
-                                'Pausado' => 'Pausado',
-                                'Finalizado' => 'Finalizado',
-                                'Cancelado' => 'Cancelado',
-                            ])
-                            ->default('Activo')
-                            ->native(false)
-                            ->prefixIcon('heroicon-m-flag'),
+                        Grid::make(2)->schema([
+                            DatePicker::make('contract_start_date')
+                                ->label('Inicio de Vigencia')
+                                ->required()
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-calendar-days'),
+
+                            Select::make('status')
+                                ->label('Estado del Plan')
+                                ->options([
+                                    'Activa' => 'Activo',
+                                    'Pausado' => 'En Suspensión',
+                                    'Finalizado' => 'Concluido',
+                                    'Cancelado' => 'Cancelado / Rescindido',
+                                ])
+                                ->required()
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-shield-check'),
+                        ]),
 
                         Textarea::make('description')
-                            ->label('Notas / Condiciones')
-                            ->rows(2)
-                            ->maxLength(255)
+                            ->label('Descripción Detallada')
+                            ->required()
+                            ->placeholder('Describa qué servicios incluye esta cuota fija...')
+                            ->rows(3)
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -98,64 +104,61 @@ class RecurrentPaymentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
-            ->defaultSort('status', 'asc')
+            ->defaultSort('contract_start_date', 'desc')
             ->columns([
                 TextColumn::make('title')
-                    ->label('Plan')
+                    ->label('Concepto / Plan')
                     ->searchable()
-                    ->sortable(),
+                    ->description(fn($record) => "Día de pago: {$record->agreed_payment_day} de cada mes"),
 
                 TextColumn::make('amount')
-                    ->label('Monto')
+                    ->label('Cuota')
                     ->money('MXN')
-                    ->sortable()
-                    ->color('success')
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->color('primary')
+                    ->alignEnd(),
 
                 TextColumn::make('frecuency')
                     ->label('Frecuencia')
                     ->badge()
-                    ->color('info')
-                    ->icon('heroicon-m-arrow-path'),
-
-                TextColumn::make('agreed_payment_day')
-                    ->label('Día de Pago')
-                    ->prefix('Día ')
-                    ->sortable()
-                    ->icon('heroicon-m-calendar-days'),
+                    ->color('gray'),
 
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->icon(fn(string $state): string => match ($state) {
-                        'Activo' => 'heroicon-m-play-circle',
-                        'Pausado' => 'heroicon-m-pause-circle',
-                        'Finalizado' => 'heroicon-m-check-circle',
-                        'Cancelado' => 'heroicon-m-x-circle',
-                        default => 'heroicon-m-question-mark-circle',
-                    })
                     ->color(fn(string $state): string => match ($state) {
-                        'Activo' => 'success',
+                        'Activa' => 'success',
                         'Pausado' => 'warning',
-                        'Finalizado' => 'primary',
                         'Cancelado' => 'danger',
                         default => 'gray',
+                    })
+                    ->icon(fn(string $state): string => match ($state) {
+                        'Activa' => 'heroicon-m-check-circle',
+                        'Pausado' => 'heroicon-m-pause-circle',
+                        'Cancelado' => 'heroicon-m-x-circle',
+                        default => 'heroicon-m-information-circle',
                     }),
-            ])
-            ->filters([
-                //
+
+                TextColumn::make('contract_start_date')
+                    ->label('Inició')
+                    ->date('M Y')
+                    ->color('gray')
+                    ->size('sm'),
             ])
             ->headerActions([
-                CreateAction::make()->slideOver()->label('Nuevo Plan'),
+                CreateAction::make()
+                    ->label('Nueva Igualada')
+                    ->icon('heroicon-m-plus-circle')
+                    ->slideOver(),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make()->slideOver()->icon('heroicon-m-pencil-square'),
                 DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
+    }
+
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return $ownerRecord->client_type !== 'prospecto';
     }
 }

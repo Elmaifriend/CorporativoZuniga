@@ -2,56 +2,88 @@
 
 namespace App\Filament\Resources\Procedures\RelationManagers;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Enums\PaymentStatus;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\ToggleColumn;
 
 class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
+    protected static ?string $title = 'Pagos del Trámite';
+
     public function form(Schema $schema): Schema
     {
         return $schema
-            ->columns(2)
+            ->columns(1)
             ->components([
-                
-                // Asumiendo que tu modelo Client tiene un campo 'name' o similar.
-                // Cámbialo por la columna correcta si usas otra (ej. 'full_name')
-                Select::make('client_id')
-                    ->label('Cliente')
-                    ->relationship('client', 'id') 
-                    ->searchable()
-                    ->required(),
+                Section::make('Información del Pago')
+                    ->icon('heroicon-m-banknotes')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('amount')
+                            ->label('Monto')
+                            ->numeric()
+                            ->prefix('$')
+                            ->required()
+                            ->prefixIcon('heroicon-m-currency-dollar'),
 
-                TextInput::make('concept')
-                    ->label('Concepto')
-                    ->required()
-                    ->maxLength(255),
+                        Select::make('payment_status')
+                            ->label('Estado')
+                            ->options(PaymentStatus::options())
+                            ->required()
+                            ->native(false),
 
-                TextInput::make('amount')
-                    ->label('Monto')
-                    ->required()
-                    ->numeric()
-                    ->prefix('$'),
+                        TextInput::make('concept')
+                            ->label('Concepto')
+                            ->placeholder('Ej. Cuota 1 de 5')
+                            ->required()
+                            ->columnSpanFull(),
 
-                TextInput::make('payment_metod') // Manteniendo tu ortografía exacta
-                    ->label('Método / Estado')
-                    ->required()
-                    ->maxLength(255),
+                        Select::make('payment_method')
+                            ->label('Método de Pago')
+                            ->required()
+                            ->options([
+                                'Efectivo' => 'Efectivo',
+                                'Transferencia' => 'Transferencia',
+                                'Tarjeta' => 'Tarjeta',
+                            ])
+                            ->native(false),
 
-                TextInput::make('transaction_reference')
-                    ->label('Referencia de Transacción')
-                    ->maxLength(255)
-                    ->columnSpanFull(),
+                        DatePicker::make('due_date')
+                            ->label('Fecha de Vencimiento')
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-calendar'),
+                    ]),
+
+                Section::make('Configuración')
+                    ->collapsed()
+                    ->schema([
+                        Toggle::make('is_notification_enabled')
+                            ->label('¿Enviar recordatorios por WhatsApp?')
+                            ->default(true),
+
+                        TextInput::make('transaction_reference')
+                            ->label('Referencia de Transacción'),
+
+                        Hidden::make('client_id')
+                            ->default(fn ($livewire) => $livewire->getOwnerRecord()->clientCase->client_id),
+                    ]),
             ]);
     }
 
@@ -59,48 +91,49 @@ class PaymentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('concept')
+            ->defaultSort('due_date', 'asc')
             ->columns([
-                
+                TextColumn::make('due_date')
+                    ->label('Vencimiento')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->color(fn ($record) => $record->due_date?->isPast() && $record->payment_status !== PaymentStatus::Paid ? 'danger' : 'gray'),
+
                 TextColumn::make('concept')
                     ->label('Concepto')
+                    ->description(fn ($record) => $record->payment_method)
                     ->searchable(),
 
                 TextColumn::make('amount')
                     ->label('Monto')
-                    ->money('USD') // Puedes ajustarlo a 'MXN' u otra moneda
-                    ->sortable(),
+                    ->money('MXN')
+                    ->sortable()
+                    ->weight('bold')
+                    ->color('success'),
 
-                TextColumn::make('payment_metod')
-                    ->label('Estado / Método')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Pendiente' => 'warning',
-                        'Completado', 'Pagado', 'Efectivo', 'Transferencia' => 'success',
-                        'Cancelado' => 'danger',
-                        default => 'gray',
-                    })
-                    ->searchable(),
+                TextColumn::make('payment_status')
+                    ->label('Estado')
+                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->label())
+                    ->color(fn (PaymentStatus $state) => $state->color())
+                    ->badge(),
 
-                TextColumn::make('transaction_reference')
-                    ->label('Referencia')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                ToggleColumn::make('is_notification_enabled')
+                    ->label('Notificaciones')
+                    ->onIcon('heroicon-m-bell-alert')
+                    ->offIcon('heroicon-m-bell-slash'),
 
                 TextColumn::make('created_at')
-                    ->label('Fecha')
-                    ->dateTime('d/m/Y')
-                    ->sortable(),
-            ])
-            ->filters([
-                //
+                    ->label('Registro')
+                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
-                CreateAction::make(),
-                // Removí AssociateAction porque al ser una relación polimórfica (MorphMany),
-                // lo normal es crear el pago directamente asociado al trámite.
+                CreateAction::make()
+                    ->label('Registrar Pago')
+                    ->slideOver(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

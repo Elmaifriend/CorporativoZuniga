@@ -22,11 +22,9 @@ class InternalAnnouncementResource extends Resource
 {
     protected static ?string $model = InternalAnnouncement::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Megaphone;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMegaphone;
 
     protected static string | UnitEnum | null $navigationGroup = 'Comunicación';
-
-    protected static ?string $recordTitleAttribute = 'Anuncios';
 
     protected static ?string $modelLabel = 'Anuncio';
 

@@ -3,10 +3,8 @@
 namespace App\Filament\Resources\Messages\Pages;
 
 use App\Filament\Resources\Messages\MessageResource;
+use App\WhatsApp\WhatsApp;
 use Filament\Resources\Pages\CreateRecord;
-use App\Notifications\MessageReceived;
-use App\Jobs\SendWhatsappMessageJob;
-
 
 class CreateMessage extends CreateRecord
 {
@@ -22,14 +20,20 @@ class CreateMessage extends CreateRecord
     {
         $notifyWhatsapp = $this->data['notify_whatsapp'] ?? false;
 
-        $this->record->recipients->each(function ($user) use ($notifyWhatsapp) {
+        if (! $notifyWhatsapp) {
+            return;
+        }
 
-            //DB notification
-            $user->notify(new MessageReceived($this->record));
+        $senderName = auth()->user()->name;
 
-            // WhatsApp notification
-            if ($notifyWhatsapp && $user->phone_number) {
-                SendWhatsappMessageJob::dispatch( messageId: $this->record->id, userId: $user->id );
+        $this->record->recipients->each(function ($user) use ($senderName) {
+
+            if ($user->has_wa && $user->phone_number) {
+                $message = "📩 *MENSAJE NUEVO* de _{$senderName}_\n" .
+                    "Asunto: *{$this->record->subject}*\n\n" .
+                    "Puedes revisarlo en el sistema.";
+
+                WhatsApp::sendText($user->phone_number, $message);
             }
         });
     }

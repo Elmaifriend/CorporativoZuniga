@@ -31,7 +31,7 @@ return new class extends Migration
                 ->nullable()
                 ->comment('daily, weekly, monthly, yearly, custom');
 
-            $table->integer("order");
+            $table->integer("order")->nullable()->default(0);
             $table->timestamps();
 
             //Relationships

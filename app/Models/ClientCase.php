@@ -39,10 +39,10 @@ class ClientCase extends Model
                 // Carga la relación de pagos (si aún no está cargada)
                 // y suma la cantidad pagada ('amount' en la tabla 'payments').
                 $totalPaid = (float) $this->payments()->sum('amount');
-                
+
                 // Calcula el porcentaje pagado
                 $percentage = ($totalPaid / $totalPricing) * 100;
-                
+
                 // Retorna el porcentaje redondeado a dos decimales
                 return round($percentage, 2);
             },
@@ -54,13 +54,13 @@ class ClientCase extends Model
         return Attribute::make(
             get: function ($value, $attributes) {
                 $totalPricing = (float) $attributes['total_pricing'];
-                
+
                 // Sumamos lo pagado
                 $totalPaid = (float) $this->payments()->sum('amount');
-                
+
                 // Calculamos la deuda
                 $owed = $totalPricing - $totalPaid;
-                
+
                 // Usamos max(0, ...) por si el cliente pagó de más, para que no salga deuda negativa
                 return max(0, $owed);
             },
@@ -69,21 +69,30 @@ class ClientCase extends Model
 
     // --- RELACIONES ---
 
-    public function client(){
+    public function client()
+    {
         return $this->belongsTo(Client::class, "client_id");
     }
 
-    public function procedures(){
+    public function procedures()
+    {
         return $this->hasMany(Procedure::class, "case_id");
     }
 
-    public function payments(){
+    public function payments()
+    {
         // Esta relación es crucial para el cálculo del porcentaje
         // Debe apuntar a la tabla de pagos y usar el morphMany correcto.
         return $this->morphMany(Payment::class, "paymentable");
     }
 
-    public function comments(){
+    public function responsable()
+    {
+        return $this->belongsTo(User::class, 'responsable_lawyer');
+    }
+
+    public function comments()
+    {
         return $this->morphMany(Comment::class, "commentable");
     }
 }

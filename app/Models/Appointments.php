@@ -29,7 +29,7 @@ class Appointments extends Model
     ];
 
     protected $casts = [
-        //'status' => AppointmentStatus::class,
+        'status' => AppointmentStatus::class,
         'date_time' => 'datetime',
         'reminder_sent_at' => 'datetime',
         'confirmed_by_reminder_at' => 'datetime',

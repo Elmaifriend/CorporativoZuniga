@@ -2,17 +2,16 @@
 
 namespace App\Filament\Resources\ClientCases\Schemas;
 
+use App\Models\Client;
 use App\Models\User;
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Group;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Toggle;
-
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ClientCaseForm
 {
@@ -21,127 +20,132 @@ class ClientCaseForm
         return $schema
             ->columns(12)
             ->components([
-                Section::make('Descripción y Hechos')
-                    ->description('Narrativa principal y definición del asunto.')
+                Section::make('Identificación del Expediente')
+                    ->icon('heroicon-m-identification')
                     ->columnSpanFull()
+                    ->columns(3)
                     ->schema([
                         TextInput::make('case_name')
-                            ->label('Asunto / Nombre del Caso')
+                            ->label('Nombre del Caso')
                             ->placeholder('Ej. Divorcio Voluntario - Familia Pérez')
                             ->required()
-                            ->maxLength(255)
-                            ->prefixIcon('heroicon-m-document-text'),
-                        RichEditor::make('resume')
-                            ->hiddenLabel()
-                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link'])
-                            ->columnSpanFull(),
+                            ->columnSpan(2)
+                            ->prefixIcon('heroicon-m-pencil-square'),
+
+                        TextInput::make('external_expedient_number')
+                            ->label('Número de Expediente')
+                            ->placeholder('000/2026')
+                            ->required()
+                            ->prefixIcon('heroicon-m-hashtag'),
                     ]),
 
-                Section::make('Partes Involucradas')
-                    ->columnSpanFull()
+                Section::make('Asignación')
+                    ->icon('heroicon-m-user-group')
                     ->columns(2)
-                    ->description('Cliente y abogado responsable asignado.')
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('client_id')
-                            ->relationship('client', 'full_name')
+                            ->label('Cliente')
+                            ->placeholder('Seleccione un cliente registrado...')
+                            ->options(Client::where('client_type', '!=', 'prospecto')->pluck('full_name', 'id'))
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->label('Cliente')
                             ->prefixIcon('heroicon-m-user'),
 
                         Select::make('responsable_lawyer')
                             ->label('Abogado Responsable')
-                            ->options(User::pluck('name', 'name'))
+                            ->placeholder('Asigne un titular...')
+                            ->options(User::pluck('name', 'id'))
                             ->searchable()
                             ->required()
                             ->prefixIcon('heroicon-m-briefcase'),
                     ]),
 
-                Section::make('Datos Judiciales')
+                Section::make('Clasificación Jurídica')
+                    ->icon('heroicon-m-scale')
                     ->columnSpan(4)
-                    ->columns(1)
                     ->schema([
                         Select::make('case_type')
                             ->label('Materia')
                             ->options([
-                                'criminales' => 'Criminales',
-                                'migratorios' => 'Migratorios',
+                                'Criminal' => 'Criminal',
+                                'Mercantil' => 'Mercantil',
+                                'Laboral' => 'Laboral',
+                                'Penal' => 'Penal',
+                                'Familiar' => 'Familiar',
+                                'Administrativo' => 'Administrativo',
                             ])
+                            ->live()
+                            ->native(false)
                             ->required()
-                            ->prefixIcon('heroicon-m-scale'),
-
-                        Select::make('case_sub_type')
-                            ->label('Categoria')
-                            ->options([
-                                'perdon' => 'Perdon',
-                                'peticion' => 'Peticion',
-                                "record" => "Record",
-                                "ciudadania" => "Ciudadania",
-                            ])
-                            ->required()
-                            ->prefixIcon('heroicon-m-scale'),
+                            ->prefixIcon('heroicon-m-tag'),
 
                         Select::make('status')
-                            ->label('Estatus Actual')
+                            ->label('Estatus del Caso')
+                            ->required()
                             ->options([
                                 'Abierto' => 'Abierto',
                                 'En Proceso' => 'En Proceso',
                                 'Pausado' => 'Pausado',
                                 'Cerrado' => 'Cerrado',
                             ])
-                            ->default('Abierto')
-                            ->required()
-                            ->native(false),
-
-                        TextInput::make('external_expedient_number')
-                            ->label('Num. Expediente')
-                            ->placeholder('000/2025')
-                            ->required()
-                            ->prefixIcon('heroicon-m-hashtag'),
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-arrow-path'),
                     ]),
 
-                Section::make('Cronograma y Presupuesto')
+                Section::make('Presupuesto y Control')
+                    ->icon('heroicon-m-currency-dollar')
                     ->columnSpan(8)
-                    ->columns(3)
+                    ->columns(2)
                     ->schema([
-                        Group::make()
-                            ->columnSpan(1)
-                            ->schema([
-                                TextInput::make('total_pricing')
-                                    ->label('Honorarios Totales')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->suffix('USD')
-                                    ->required()
-                                    ->helperText('Monto total acordado con el cliente en USD.'),
-                                Toggle::make('payment_plan')
-                                    ->label('Cobrar por caso')
-                            ]),
+                        Grid::make(1)->columnSpan(1)->schema([
+                            TextInput::make('total_pricing')
+                                ->label('Honorarios Totales')
+                                ->numeric()
+                                ->prefix('$')
+                                ->suffix('MXN')
+                                ->required()
+                                ->live(onBlur: true)
+                                ->prefixIcon('heroicon-m-banknotes'),
 
-                        Group::make()
-                        ->columnSpan(2)
-                            ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        DatePicker::make('start_date')
-                                            ->label('Fecha Inicio')
-                                            ->required()
-                                            ->native(false)
-                                            ->prefixIcon('heroicon-m-calendar'),
+                            TextEntry::make('financial_status')
+                                ->label('Balance Actual')
+                                ->state(fn($record) => $record
+                                    ? "Pagado: {$record->paidPorcentage}% | Deuda: $" . number_format($record->remainingBalance, 2)
+                                    : 'Defina el precio total para ver el balance.')
+                                ->extraAttributes(['class' => 'text-sm text-gray-500 italic']),
+                        ]),
 
-                                        DatePicker::make('stimated_finish_date')
-                                            ->label('Cierre Estimado')
-                                            ->native(false)
-                                            ->prefixIcon('heroicon-m-calendar-days'),
+                        Grid::make(1)->columnSpan(1)->schema([
+                            DatePicker::make('start_date')
+                                ->label('Fecha de Inicio')
+                                ->required()
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-calendar'),
 
-                                        DatePicker::make('real_finished_date')
-                                            ->label('Cierre Real')
-                                            ->native(false)
-                                            ->prefixIcon('heroicon-m-check-circle')
-                                            ->columnSpanFull(),
-                                    ]),
-                            ]),
+                            DatePicker::make('stimated_finish_date')
+                                ->label('Cierre Estimado')
+                                ->required()
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-calendar-days'),
+
+                            DatePicker::make('real_finished_date')
+                                ->label('Cierre Real')
+                                ->native(false)
+                                ->prefixIcon('heroicon-m-check-badge'),
+                        ]),
+                    ]),
+
+                Section::make('Narrativa del Caso')
+                    ->icon('heroicon-m-chat-bubble-bottom-center-text')
+                    ->collapsible()
+                    ->columnSpanFull()
+                    ->schema([
+                        RichEditor::make('resume')
+                            ->hiddenLabel()
+                            ->placeholder('Redacte la síntesis de los hechos y la estrategia legal...')
+                            ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link']),
                     ]),
             ]);
     }
