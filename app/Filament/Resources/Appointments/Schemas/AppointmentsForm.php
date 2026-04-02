@@ -59,7 +59,7 @@ class AppointmentsForm
                         Select::make('appointmentable_id')
                             ->label('Cliente')
                             ->placeholder('Busque por nombre...')
-                            ->options(Client::pluck('full_name', 'id'))
+                            ->options(Client::where('client_type', '!=', 'prospecto')->pluck('full_name', 'id'))
                             ->searchable()
                             ->disabledOn('edit')
                             ->live()
