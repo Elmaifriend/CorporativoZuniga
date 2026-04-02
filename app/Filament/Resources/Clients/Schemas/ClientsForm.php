@@ -72,7 +72,7 @@ class ClientsForm
                                 ->required()
                                 ->placeholder('5512345678')
                                 ->prefixIcon('heroicon-m-device-phone-mobile')
-                                ->mask('9999999999'),
+                                ->mask('999999999999'),
 
                             TextInput::make('email')
                                 ->label('Correo Electrónico')
