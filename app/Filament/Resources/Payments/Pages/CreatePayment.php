@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\Payments\Pages;
 
 use App\Filament\Resources\Payments\PaymentResource;
+use App\Models\ClientCase;
+use App\Models\Procedure;
+use App\Models\RecurrentPayment;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreatePayment extends CreateRecord
@@ -13,30 +16,25 @@ class CreatePayment extends CreateRecord
     {
         $selector = $data['paymentable_selector'] ?? null;
 
-        if (!$selector) {
-            throw new \Exception('Debes seleccionar el tipo de pago.');
-        }
+        $data['paymentable_type'] = match ($selector) {
+            'case' => ClientCase::class,
+            'procedure' => Procedure::class,
+            'recurrent' => RecurrentPayment::class,
+            default => throw new \Exception('Debe seleccionar un destino válido para el pago.'),
+        };
 
-        if ($selector === 'case') {
-            if (empty($data['paymentable_id'])) {
-                throw new \Exception('Debes seleccionar un caso.');
-            }
+        $data['paymentable_id'] = match ($selector) {
+            'case' => $data['case_id'],
+            'procedure' => $data['procedure_id'],
+            'recurrent' => $data['recurrent_id'],
+        };
 
-            $data['paymentable_type'] = \App\Models\ClientCase::class;
-            $data['paymentable_id'] = $data['paymentable_id'];
-        }
-
-        if ($selector === 'recurrent') {
-            if (empty($data['recurrent_payment_id'])) {
-                throw new \Exception('Debes seleccionar un pago recurrente.');
-            }
-
-            $data['paymentable_type'] = \App\Models\RecurrentPayment::class;
-            $data['paymentable_id'] = $data['recurrent_payment_id'];
-        }
-
-        unset($data['paymentable_selector']);
-        unset($data['recurrent_payment_id']);
+        unset(
+            $data['paymentable_selector'],
+            $data['case_id'],
+            $data['procedure_id'],
+            $data['recurrent_id']
+        );
 
         return $data;
     }
