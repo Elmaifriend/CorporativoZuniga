@@ -26,11 +26,21 @@ class Procedure extends Model
         "installment_interval",
     ];
 
-    public function clientCase(){
+    protected $casts = [
+        'starting_date' => 'datetime',
+        'last_update' => 'datetime',
+        'finish_date' => 'datetime',
+        'limit_date' => 'datetime',
+        'order' => 'integer',
+    ];
+
+    public function clientCase()
+    {
         return $this->belongsTo(ClientCase::class, "case_id");
     }
 
-    public function documents(){
+    public function documents()
+    {
         return $this->hasMany(ProcedureDocument::class, "procedure_id");
     }
 
