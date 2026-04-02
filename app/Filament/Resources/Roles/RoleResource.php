@@ -23,8 +23,6 @@ class RoleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-key';
 
-    protected static ?string $recordTitleAttribute = 'Role';
-
     public static function form(Schema $schema): Schema
     {
         return RoleForm::configure($schema);

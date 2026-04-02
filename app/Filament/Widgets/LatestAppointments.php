@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\AppointmentStatus;
 use App\Models\Appointments;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -33,12 +34,8 @@ class LatestAppointments extends TableWidget
                 TextColumn::make("status")
                     ->label("Estatus")
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'Confirmado' => 'success',
-                        'Cancelado' => 'danger',
-                        'Pendiente' => 'warning',
-                        default => 'gray'
-                    }),
+                    ->formatStateUsing(fn(AppointmentStatus $state) => $state->label())
+                    ->color(fn(AppointmentStatus $state): string => $state->color()),
 
                 TextColumn::make("modality")
                     ->label("Modalidad")

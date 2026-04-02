@@ -26,8 +26,6 @@ class InternalAnnouncementResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Comunicación';
 
-    protected static ?string $recordTitleAttribute = 'Anuncios';
-
     protected static ?string $modelLabel = 'Anuncio';
 
     public static function form(Schema $schema): Schema

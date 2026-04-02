@@ -37,6 +37,13 @@ class ClientsResource extends Resource
 
     protected static ?string $model = Client::class;
 
+    protected static ?string $recordTitleAttribute = 'full_name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['full_name', 'email', 'phone_number'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ClientsForm::configure($schema);

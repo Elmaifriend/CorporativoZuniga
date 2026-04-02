@@ -29,6 +29,13 @@ class ProcedureResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Tramites';
 
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'clientCase.case_name'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProcedureForm::configure($schema);
