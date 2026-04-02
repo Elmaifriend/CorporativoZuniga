@@ -39,7 +39,7 @@ class ClientCasesTable
                     ->label('Materia')
                     ->badge()
                     ->icon(fn(string $state): string => match ($state) {
-                        'Civil'          => 'heroicon-m-home-modern',
+                        'Criminal'       => 'heroicon-m-home-modern',
                         'Mercantil'      => 'heroicon-m-banknotes',
                         'Laboral'        => 'heroicon-m-briefcase',
                         'Penal'          => 'heroicon-m-scale',

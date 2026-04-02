@@ -69,8 +69,12 @@ class ClientCaseForm
                         Select::make('case_type')
                             ->label('Materia')
                             ->options([
-                                'criminales' => 'Criminales',
-                                'migratorios' => 'Migratorios',
+                                'Criminal' => 'Criminal',
+                                'Mercantil' => 'Mercantil',
+                                'Laboral' => 'Laboral',
+                                'Penal' => 'Penal',
+                                'Familiar' => 'Familiar',
+                                'Administrativo' => 'Administrativo',
                             ])
                             ->live()
                             ->native(false)
