@@ -15,69 +15,68 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables\Enums\RecordActionsPosition;
 use Illuminate\Support\Facades\Storage;
-
-
 
 class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
-    protected static ?string $title = 'Documentación Digital';
+    protected static ?string $title = 'Expediente Digital';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Clasificación del Documento')
+                Section::make('Clasificación del Archivo')
+                    ->icon('heroicon-m-tag')
                     ->schema([
                         Select::make('document_name')
                             ->label('Tipo de Documento')
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->prefixIcon('heroicon-m-document-magnifying-glass')
                             ->options([
                                 'Identidad' => [
                                     'acta_nacimiento' => 'Acta de nacimiento',
                                     'pasaporte' => 'Pasaporte',
                                     'curp' => 'CURP',
-                                    'identificacion_oficial' => 'Identificación oficial',
-                                    'acta_matrimonio' => 'Acta de matrimonio',
+                                    'identificacion_oficial' => 'Identificación oficial (INE)',
                                 ],
                                 'Migración' => [
                                     'formato_i130' => 'Petición familiar (I-130)',
                                     'formato_i485' => 'Ajuste de estatus (I-485)',
                                     'formato_i765' => 'Permiso de trabajo (I-765)',
                                     'visa_turista' => 'Visa de turista',
-                                    'visa_trabajo' => 'Visa de trabajo',
                                 ],
                                 'Otros' => [
                                     'comprobante_domicilio' => 'Comprobante de domicilio',
-                                    'antecedentes_penales' => 'Carta de antecedentes penales',
-                                    'carta_empleador' => 'Carta del empleador',
+                                    'antecedentes_penales' => 'Antecedentes penales',
                                     'otro' => 'Otro documento',
                                 ],
                             ]),
 
-                        //Textarea::make('notes')->label('Notas')->rows(2)->maxLength(255),
+                        Textarea::make('notes')
+                            ->label('Observaciones Adicionales')
+                            ->placeholder('Ej. Vigencia de pasaporte, notas sobre la legibilidad...')
+                            ->rows(2)
+                            ->maxLength(255),
                     ]),
 
-                Section::make('Archivo')
+                Section::make('Carga de Archivo')
+                    ->icon('heroicon-m-cloud-arrow-up')
                     ->schema([
                         FileUpload::make('document_path')
-                            ->label('Archivo')
+                            ->label('Documento Digitalizado')
                             ->required()
                             ->disk('public')
                             ->directory('client-documents')
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'image/jpeg',
-                                'image/png'
-                            ])
+                            ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                            ->maxSize(5120)
                             ->openable()
                             ->downloadable()
+                            ->previewable()
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -86,39 +85,42 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordUrl(fn ($record) => Storage::disk('public')->url($record->document_path))
+            ->recordUrl(fn($record) => Storage::disk('public')->url($record->document_path))
             ->openRecordUrlInNewTab()
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('document_name')
-                    ->label('Documento')
+                    ->label('Nombre del Documento')
                     ->searchable()
                     ->sortable()
-                    ->formatStateUsing(
-                        fn (string $state): string =>
-                        str($state)->replace('_', ' ')->title()
-                    ),
+                    ->icon(fn($record) => str_contains($record->document_path, '.pdf')
+                        ? 'heroicon-s-document-text'
+                        : 'heroicon-s-photo')
+                    ->iconColor(fn($record) => str_contains($record->document_path, '.pdf') ? 'danger' : 'info')
+                    ->formatStateUsing(fn(string $state): string => str($state)->replace('_', ' ')->title()),
 
                 TextColumn::make('created_at')
-                    ->label('Subido el')
-                    ->date('d M Y')
+                    ->label('Fecha de Carga')
+                    ->date('d M, Y')
+                    ->description(fn($record) => $record->created_at->diffForHumans())
                     ->sortable(),
 
                 TextColumn::make('notes')
                     ->label('Notas')
                     ->limit(30)
+                    ->tooltip(fn($record) => $record->notes)
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Subir Documento')
-                    ->modalWidth('6xl'),
+                    ->label('Cargar Documento')
+                    ->icon('heroicon-m-plus-circle')
+                    ->modalWidth('2xl'),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->modalWidth('6xl'),
+                EditAction::make()->modalWidth('2xl'),
                 DeleteAction::make(),
             ])
-            ->recordActionsPosition(RecordActionsPosition::AfterColumns)
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
