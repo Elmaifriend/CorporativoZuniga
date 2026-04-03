@@ -60,9 +60,9 @@ class ClientCaseResource extends Resource
     {
         return [
             ProceduresRelationManager::class,
+            DocumentsRelationManager::class,
             PaymentsRelationManager::class,
             CommentsRelationManager::class,
-            DocumentsRelationManager::class,
         ];
     }
 
