@@ -1,104 +1,342 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Subir Documentos del Trámite</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación del Trámite | Corporativo Zúñiga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #ffffff;
-            --surface: #ffffff;
-            --primary: #003e65;
-            --primary-dark: #002f4d;
-            --blob-blue: #cfe4f1;
-            --text: #003e65;
-            --muted: #5f7d91;
-            --border: #e5e7eb;
+            --brand-primary: #004c7a;
+            --brand-primary-light: #00629e;
+            --brand-primary-dark: #003a5e;
+            --brand-gold: #d4af37;
+            --brand-gold-light: #f3e5ab;
+            --brand-gold-50: #fffaf0;
+            --success: #10b981;
+            --error: #ef4444;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --radius-xl: 20px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image: radial-gradient(circle at 0% 0%, rgba(0, 76, 122, 0.03) 0%, transparent 50%),
+                              radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
         }
 
         .card {
-            background: var(--surface);
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 700px;
-            width: 100%;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-lg);
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0, 62, 101, 0.08);
+            position: relative;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 1.5rem;
+                border-radius: var(--radius-lg);
+            }
+        }
+
+        .header {
+            margin-bottom: 2.5rem;
+        }
+
+        .header h2 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .procedure-info {
+            margin-top: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: var(--brand-gold-50);
+            border: 1px solid var(--brand-gold-light);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--brand-gold);
+        }
+
+        .procedure-title {
+            display: block;
+            font-weight: 700;
+            color: var(--brand-primary-dark);
+            font-size: 1rem;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .document-group {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .document-group:hover {
+            border-color: var(--brand-primary-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .group-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--brand-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-remove {
+            background: #fee2e2;
+            color: var(--error);
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background: var(--error);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
         }
 
         .input {
             width: 100%;
-            padding: 0.9rem 1rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-            box-sizing: border-box;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            font-size: 0.9375rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: #fcfcfc;
+            color: var(--text-main);
         }
 
-        .label {
+        .input:focus {
+            outline: none;
+            border-color: var(--brand-primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 76, 122, 0.1);
+        }
+
+        .input[type="file"] {
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        .input::file-selector-button {
+            background: var(--brand-primary);
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.4rem;
-            display: block;
+            font-size: 0.8125rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .input::file-selector-button:hover {
+            background: var(--brand-primary-light);
+        }
+
+        .error-text {
+            color: var(--error);
+            font-size: 0.8125rem;
+            margin-top: 0.4rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.625rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
+            border: none;
+            width: 100%;
         }
 
         .btn-primary {
-            width: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--brand-primary);
             color: white;
-            padding: 1rem;
-            border-radius: 999px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 76, 122, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 76, 122, 0.3);
         }
 
         .btn-secondary {
-            width: 100%;
-            background: var(--blob-blue);
-            color: var(--primary);
-            padding: 0.8rem;
-            border-radius: 999px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            margin-top: 0.5rem;
+            background: white;
+            color: var(--brand-primary);
+            border: 2px solid var(--brand-primary);
         }
 
-        .success-box {
-            background: #e6f4ea;
-            color: #1e7e34;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
+        .btn-secondary:hover {
+            background: var(--brand-primary);
+            color: white;
+        }
+
+        .footer-info {
+            margin-top: 2.5rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .footer-info strong {
+            color: var(--brand-primary);
+        }
+
+        .info-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
         }
     </style>
 </head>
-
 <body>
 
-<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem;">
+<div class="container">
     <div class="card">
-
-        <h2 style="font-size:1.8rem; font-weight:700; margin-bottom:0.5rem;">
-            Subir Documentos
-        </h2>
-
-        <p style="color:var(--muted); margin-bottom:2rem;">
-            Trámite: <strong>{{ $procedure->title }}</strong>
-        </p>
+        <header class="header">
+            <h2>Documentación del Trámite</h2>
+            <p>Sube los archivos necesarios para procesar este trámite.</p>
+            
+            <div class="procedure-info">
+                <span class="procedure-title">{{ $procedure->title }}</span>
+            </div>
+        </header>
 
         @if(session('success'))
-            <div class="success-box">
-                ✅ {{ session('success') }}
+            <div class="alert alert-success">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                {{ session('success') }}
             </div>
         @endif
 
@@ -106,55 +344,139 @@
             @csrf
 
             <div id="documents-wrapper">
-                <div class="document-group">
-                    <label class="label">Tipo de documento</label>
-                    <select name="documents[0][type]" class="input" required>
-                        <option value="">Seleccione una opción</option>
-                        @foreach($documentTypes as $value => $label)
-                            <option value="{{ $value }}">{{ $label }}</option>
-                        @endforeach
-                    </select>
+                <div class="document-group" id="group-0">
+                    <div class="group-header">
+                        <span class="group-title">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Documento 1
+                        </span>
+                    </div>
 
-                    <label class="label">Archivo</label>
-                    <input type="file" name="documents[0][file]" class="input" required>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="label">Tipo de documento</label>
+                            <select name="documents[0][type]" class="input" required>
+                                <option value="">Seleccione el tipo...</option>
+                                @foreach($documentTypes as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            @error('documents.0.type')
+                                <p class="error-text">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        <div class="form-field">
+                            <label class="label">Archivo</label>
+                            <input type="file" name="documents[0][file]" class="input" required>
+                            <div class="info-text">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Formatos: PDF, JPG, PNG (Max. 10MB)
+                            </div>
+                            @error('documents.0.file')
+                                <p class="error-text">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                    {{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <button type="button" class="btn-secondary" onclick="addDocument()">
-                + Agregar otro documento
-            </button>
+            <div class="actions">
+                <button type="button" class="btn btn-secondary" onclick="addDocument()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Añadir otro documento
+                </button>
 
-            <button type="submit" class="btn-primary">
-                Enviar documentos
-            </button>
-
+                <button type="submit" class="btn btn-primary">
+                    Enviar documentos del trámite
+                </button>
+            </div>
         </form>
+
+        <div class="footer-info">
+            &copy; {{ date('Y') }} <strong>Corporativo Zúñiga</strong>. Excelencia Jurídica Digital.
+        </div>
     </div>
 </div>
 
 <script>
 let index = 1;
+const documentTypes = @json($documentTypes);
 
 function addDocument() {
     const wrapper = document.getElementById('documents-wrapper');
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'document-group';
+    groupDiv.id = `group-${index}`;
 
-    const html = `
-        <div class="document-group" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed #ccc;">
-            <label class="label">Tipo de documento</label>
-            <select name="documents[${index}][type]" class="input" required>
-                <option value="">Seleccione una opción</option>
-                @foreach($documentTypes as $value => $label)
-                    <option value="{{ $value }}">{{ $label }}</option>
-                @endforeach
-            </select>
+    let optionsHtml = '<option value="">Seleccione el tipo...</option>';
+    for (const [value, label] of Object.entries(documentTypes)) {
+        optionsHtml += `<option value="${value}">${label}</option>`;
+    }
 
-            <label class="label">Archivo</label>
-            <input type="file" name="documents[${index}][file]" class="input" required>
+    groupDiv.innerHTML = `
+        <div class="group-header">
+            <span class="group-title">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Documento ${index + 1}
+            </span>
+            <button type="button" class="btn-remove" onclick="removeDocument(${index})" title="Eliminar">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-field">
+                <label class="label">Tipo de documento</label>
+                <select name="documents[${index}][type]" class="input" required>
+                    ${optionsHtml}
+                </select>
+            </div>
+
+            <div class="form-field">
+                <label class="label">Archivo</label>
+                <input type="file" name="documents[${index}][file]" class="input" required>
+                <div class="info-text">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Formatos aceptados: PDF, JPG, PNG
+                </div>
+            </div>
         </div>
     `;
 
-    wrapper.insertAdjacentHTML('beforeend', html);
+    wrapper.appendChild(groupDiv);
     index++;
+}
+
+function removeDocument(idx) {
+    const group = document.getElementById(`group-${idx}`);
+    if (group) {
+        group.style.opacity = '0';
+        group.style.transform = 'scale(0.95)';
+        setTimeout(() => group.remove(), 200);
+    }
 }
 </script>
 
