@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expediente Digital | Corporativo Zúñiga</title>
+    <title>Documentación del Caso | Corporativo Zúñiga</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -90,35 +90,28 @@
             font-size: 1rem;
         }
 
-        .client-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+        .case-info {
             margin-top: 1.25rem;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.25rem;
             background: var(--brand-gold-50);
             border: 1px solid var(--brand-gold-light);
             border-radius: var(--radius-lg);
-            width: fit-content;
+            border-left: 4px solid var(--brand-gold);
         }
 
-        .client-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--brand-gold);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .case-name {
+            display: block;
             font-weight: 700;
-            font-size: 0.875rem;
+            color: var(--brand-primary-dark);
+            font-size: 1rem;
         }
 
         .client-name {
-            font-weight: 600;
-            color: var(--brand-primary-dark);
-            font-size: 0.9375rem;
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            font-weight: 500;
         }
 
         .alert {
@@ -206,10 +199,6 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.25rem;
-        }
-
-        .form-field {
-            position: relative;
         }
 
         .label {
@@ -342,14 +331,12 @@
 <div class="container">
     <div class="card">
         <header class="header">
-            <h2>Expediente Digital</h2>
-            <p>Sube la documentación necesaria para completar tu registro.</p>
+            <h2>Expediente del Caso</h2>
+            <p>Adjunta la documentación legal requerida para este proceso.</p>
             
-            <div class="client-info">
-                <div class="client-avatar">
-                    {{ substr($client->full_name, 0, 1) }}
-                </div>
-                <span class="client-name">{{ $client->full_name }}</span>
+            <div class="case-info">
+                <span class="case-name">{{ $clientCase->case_name }}</span>
+                <span class="client-name">Cliente: {{ $clientCase->client->full_name }}</span>
             </div>
         </header>
 
@@ -362,7 +349,7 @@
             </div>
         @endif
 
-        <form method="POST" enctype="multipart/form-data" action="{{ route('cliente.documentos.store', $client) }}">
+        <form method="POST" enctype="multipart/form-data" action="{{ route('caso.documentos.store', $clientCase) }}">
             @csrf
 
             <div id="documents-wrapper">
@@ -402,7 +389,7 @@
                                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                Formatos aceptados: PDF, JPG, PNG (Max. 10MB)
+                                Formatos: PDF, JPG, PNG (Max. 10MB)
                             </div>
                             @error('documents.0.file')
                                 <p class="error-text">
@@ -422,17 +409,17 @@
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Añadir otro archivo
+                    Añadir otro documento
                 </button>
 
                 <button type="submit" class="btn btn-primary">
-                    Finalizar y enviar
+                    Enviar documentación del caso
                 </button>
             </div>
         </form>
 
         <div class="footer-info">
-            &copy; {{ date('Y') }} <strong>Corporativo Zúñiga</strong>. Control de Calidad Legal.
+            &copy; {{ date('Y') }} <strong>Corporativo Zúñiga</strong>. Gestión Legal Avanzada.
         </div>
     </div>
 </div>

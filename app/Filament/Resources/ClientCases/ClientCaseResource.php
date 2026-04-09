@@ -19,6 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Resources\ClientCases\RelationManagers\DocumentsRelationManager;
 
 class ClientCaseResource extends Resource
 {
@@ -59,6 +60,7 @@ class ClientCaseResource extends Resource
     {
         return [
             ProceduresRelationManager::class,
+            DocumentsRelationManager::class,
             PaymentsRelationManager::class,
             CommentsRelationManager::class,
         ];
@@ -69,7 +71,6 @@ class ClientCaseResource extends Resource
         return [
             'index' => ListClientCases::route('/'),
             'create' => CreateClientCase::route('/create'),
-            //'view' => ViewClientCase::route('/{record}'),
             'edit' => EditClientCase::route('/{record}/edit'),
         ];
     }

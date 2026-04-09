@@ -22,7 +22,7 @@ class CommentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'comments';
 
-    protected static ?string $title = 'Bitácora de Seguimiento';
+    protected static ?string $title = 'Notas del Caso';
 
     public function form(Schema $schema): Schema
     {

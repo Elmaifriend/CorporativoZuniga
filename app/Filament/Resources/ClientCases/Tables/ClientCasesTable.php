@@ -29,7 +29,7 @@ class ClientCasesTable
                     ->sortable()
                     ->icon('heroicon-m-user'),
 
-                TextColumn::make('responsable_lawyer')
+                TextColumn::make('responsable.name')
                     ->label("Abogado")
                     ->badge()
                     ->color('gray')

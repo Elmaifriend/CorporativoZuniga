@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Document;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Client extends Model
 {
@@ -35,8 +37,9 @@ class Client extends Model
         return $this->hasMany(ClientCase::class, "client_id");
     }
 
-    public function documents(){
-        return $this->hasMany(ClientDocument::class, "client_id");
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 
     public function recurrentPayments(){

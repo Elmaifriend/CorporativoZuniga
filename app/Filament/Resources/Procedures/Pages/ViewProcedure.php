@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\ClientCases\Pages;
+namespace App\Filament\Resources\Procedures\Pages;
 
-use App\Filament\Resources\ClientCases\ClientCaseResource;
+use App\Filament\Resources\Procedures\ProcedureResource;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
-class ViewClientCase extends ViewRecord
+class ViewProcedure extends ViewRecord
 {
-    protected static string $resource = ClientCaseResource::class;
+    protected static string $resource = ProcedureResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -18,7 +18,7 @@ class ViewClientCase extends ViewRecord
                 ->label('Imprimir PDF')
                 ->icon('heroicon-o-printer')
                 ->color('gray')
-                ->url(fn() => route('caso.imprimir', $this->record))
+                ->url(fn() => route('tramite.imprimir', $this->record))
                 ->openUrlInNewTab(),
             EditAction::make(),
         ];

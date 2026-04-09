@@ -3,93 +3,86 @@
 namespace App\Filament\Resources\ClientCases\RelationManagers;
 
 use App\Enums\PaymentStatus;
-use App\Enums\PaymentNotificationStatus;
-use Filament\Tables\Table;
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle; // Nuevo: Para control de notificaciones
-use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Tables\Columns\ToggleColumn;
 
 class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
-    protected static ?string $title = 'Control de Cobranza';
+    protected static ?string $title = 'Pagos del Caso';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Registro de Movimiento')
-                    ->icon('heroicon-m-credit-card')
-                    ->description('Administre el estado del pago y las notificaciones automáticas.')
+                Section::make('Información del Pago')
+                    ->icon('heroicon-m-banknotes')
+                    ->columns(2)
                     ->schema([
-                        Grid::make(3)->schema([
-                            TextInput::make('amount')
-                                ->label('Monto')
-                                ->numeric()
-                                ->prefix('$')
-                                ->placeholder('0.00')
-                                ->required()
-                                ->prefixIcon('heroicon-m-banknotes')
-                                ->extraInputAttributes(['class' => 'font-bold text-lg']),
+                        TextInput::make('amount')
+                            ->label('Monto')
+                            ->numeric()
+                            ->prefix('$')
+                            ->required()
+                            ->prefixIcon('heroicon-m-currency-dollar'),
 
-                            Select::make('payment_status')
-                                ->label('Estado del Pago')
-                                ->options(PaymentStatus::options())
-                                ->required()
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-check-circle'),
-
-                            Select::make('payment_method')
-                                ->label('Medio de Pago')
-                                ->options([
-                                    'Transferencia' => 'Transferencia Bancaria',
-                                    'Efectivo' => 'Efectivo',
-                                    'Tarjeta de Crédito/Débito' => 'Tarjeta Crédito/Débito',
-                                    'Cheque' => 'Cheque',
-                                ])
-                                ->required()
-                                ->native(false)
-                                ->prefixIcon('heroicon-m-wallet'),
-                        ]),
+                        Select::make('payment_status')
+                            ->label('Estado')
+                            ->options(PaymentStatus::options())
+                            ->required()
+                            ->native(false),
 
                         TextInput::make('concept')
                             ->label('Concepto')
-                            ->placeholder('Ej. Mensualidad Marzo, Pago de Peritaje...')
+                            ->placeholder('Ej. Cuota 1 de 5')
                             ->required()
-                            ->maxLength(255)
-                            ->columnSpanFull()
-                            ->prefixIcon('heroicon-m-chat-bubble-bottom-center-text'),
+                            ->columnSpanFull(),
 
-                        Grid::make(2)->schema([
-                            TextInput::make('transaction_reference')
-                                ->label('Referencia / Folio')
-                                ->placeholder('Núm. de ticket o transferencia')
-                                ->prefixIcon('heroicon-m-ticket'),
+                        Select::make('payment_method')
+                            ->label('Método de Pago')
+                            ->required()
+                            ->options([
+                                'Efectivo' => 'Efectivo',
+                                'Transferencia' => 'Transferencia',
+                                'Tarjeta' => 'Tarjeta',
+                            ])
+                            ->native(false),
 
-                            Toggle::make('is_notification_enabled')
-                                ->label('Activar Recordatorios')
-                                ->default(true)
-                                ->inline(false)
-                                ->onIcon('heroicon-m-bell-alert')
-                                ->offIcon('heroicon-m-bell-slash'),
-                        ]),
+                        DatePicker::make('due_date')
+                            ->label('Fecha de Vencimiento')
+                            ->native(false)
+                            ->prefixIcon('heroicon-m-calendar'),
+                    ]),
+
+                Section::make('Configuración')
+                    ->collapsed()
+                    ->schema([
+                        Toggle::make('is_notification_enabled')
+                            ->label('¿Enviar recordatorios por WhatsApp?')
+                            ->default(true),
+
+                        TextInput::make('transaction_reference')
+                            ->label('Referencia de Transacción'),
 
                         Hidden::make('client_id')
-                            ->default(fn(RelationManager $livewire) => $livewire->getOwnerRecord()->client_id),
+                            ->default(fn ($livewire) => $livewire->getOwnerRecord()->client->id),
                     ]),
             ]);
     }
@@ -98,60 +91,55 @@ class PaymentsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('concept')
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('due_date', 'asc')
             ->columns([
-                TextColumn::make('created_at')
-                    ->label('Registro')
+                TextColumn::make('due_date')
+                    ->label('Vencimiento')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color('gray')
-                    ->size('sm'),
+                    ->color(fn ($record) => $record->due_date?->isPast() && $record->payment_status !== PaymentStatus::Paid ? 'danger' : 'gray'),
 
                 TextColumn::make('concept')
-                    ->label('Detalle')
-                    ->searchable()
-                    ->weight('medium')
-                    ->description(fn($record) => $record->transaction_reference
-                        ? "Ref: {$record->transaction_reference}"
-                        : null
-                    )
-                    ->wrap(),
-
-                TextColumn::make('payment_status')
-                    ->label('Estado')
-                    ->badge()
-                    ->formatStateUsing(fn(PaymentStatus $state) => $state->label())
-                    ->color(fn(PaymentStatus $state) => $state->color())
-                    ->sortable(),
-
-                TextColumn::make('payment_method')
-                    ->label('Método de Pago')
-                    ->badge()
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Concepto')
+                    ->description(fn ($record) => $record->payment_method)
+                    ->searchable(),
 
                 TextColumn::make('amount')
-                    ->label('Importe')
+                    ->label('Monto')
                     ->money('MXN')
                     ->sortable()
                     ->weight('bold')
-                    ->alignEnd()
-                    ->color(fn($record) => $record->payment_status->value === 'paid' ? 'success' : 'warning')
-                    ->summarize(
-                        Sum::make()
-                            ->label('Recaudado')
-                            ->money('MXN')
-                    ),
+                    ->color('success'),
+
+                TextColumn::make('payment_status')
+                    ->label('Estado')
+                    ->formatStateUsing(fn (PaymentStatus $state): string => $state->label())
+                    ->color(fn (PaymentStatus $state) => $state->color())
+                    ->badge(),
+
+                ToggleColumn::make('is_notification_enabled')
+                    ->label('Notificaciones')
+                    ->onIcon('heroicon-m-bell-alert')
+                    ->offIcon('heroicon-m-bell-slash'),
+
+                TextColumn::make('created_at')
+                    ->label('Registro')
+                    ->date('d/m/Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Nuevo Cobro')
-                    ->icon('heroicon-m-plus-circle')
+                    ->label('Registrar Pago')
                     ->slideOver(),
             ])
             ->recordActions([
                 EditAction::make()->slideOver(),
                 DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

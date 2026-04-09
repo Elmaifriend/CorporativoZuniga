@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\ClientDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,13 +45,14 @@ class ClientDocumentRequestController extends Controller
 
         foreach ($request->documents as $doc) {
 
-            $path = $doc['file']->store('client-documents', 'public');
+            // Homologamos la carpeta de destino con la que configuramos en Filament ('documents')
+            $path = $doc['file']->store('documents', 'public');
 
-            ClientDocument::create([
-                'client_id' => $client->id,
-                'document_type' => $doc['type'],
-                'document_name' => $doc['file']->getClientOriginalName(),
-                'document_path' => $path,
+            // Usamos la relación morph creada en el modelo Client
+            $client->documents()->create([
+                // Guardamos el tipo de documento (ej. 'acta_nacimiento') en el campo name
+                'name' => $doc['type'], 
+                'file_path' => $path,
             ]);
         }
 

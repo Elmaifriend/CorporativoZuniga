@@ -18,6 +18,13 @@ class EditClients extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('imprimir')
+                ->label('Imprimir PDF')
+                ->icon('heroicon-o-printer')
+                ->color('gray')
+                ->url(fn() => route('cliente.imprimir', $this->record))
+                ->openUrlInNewTab(),
+
             Action::make('convertirACliente')
                 ->label('Confirmar como Cliente')
                 ->icon('heroicon-m-user-plus')
@@ -70,12 +77,12 @@ class EditClients extends EditRecord
                         Notification::make()->title('Enlace de actualización copiado')->success()->send();
                     }),
             ])
-                ->label('Actualizar Datos')
-                ->icon('heroicon-m-user-circle')
-                ->button()
-                ->color('gray')
-                ->outlined()
-                ->visible(fn() => $this->record->client_type === 'cliente'),
+            ->label('Actualizar Datos')
+            ->icon('heroicon-m-user-circle')
+            ->button()
+            ->color('gray')
+            ->outlined()
+            ->visible(fn() => $this->record->client_type === 'cliente'),
 
             ActionGroup::make([
                 Action::make('mandarLinkDocumentos')

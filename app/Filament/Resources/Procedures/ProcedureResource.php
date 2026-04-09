@@ -6,6 +6,7 @@ use App\Filament\Resources\Procedures\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Procedures\Pages\CreateProcedure;
 use App\Filament\Resources\Procedures\Pages\EditProcedure;
 use App\Filament\Resources\Procedures\Pages\ListProcedures;
+use App\Filament\Resources\Procedures\Pages\ViewProcedure;
 use App\Filament\Resources\Procedures\Schemas\ProcedureForm;
 use App\Filament\Resources\Procedures\Tables\ProceduresTable;
 use App\Models\Procedure;
@@ -15,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Resources\Procedures\RelationManagers\DocumentsRelationManager;
 
 
 class ProcedureResource extends Resource
@@ -50,6 +52,7 @@ class ProcedureResource extends Resource
     {
         return [
             PaymentsRelationManager::class,
+            DocumentsRelationManager::class,
         ];
     }
 

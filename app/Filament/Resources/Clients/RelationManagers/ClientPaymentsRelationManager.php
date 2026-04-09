@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 class ClientPaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
-    protected static ?string $title = 'Control de Cobranza y Pagos';
+    protected static ?string $title = 'Historial de Pagos';
 
     protected function getTableQuery(): Builder
     {

@@ -6,9 +6,18 @@ use App\Models\Client;
 use App\Models\ClientDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ClientProfileController extends Controller
 {
+    public function downloadPdf(Client $client)
+    {
+        $pdf = Pdf::loadView('clients.pdf', compact('client'));
+        $filename = \Illuminate\Support\Str::slug("cliente-{$client->full_name}-{$client->id}") . ".pdf";
+        
+        return $pdf->download($filename);
+    }
+
     public function edit(Client $client)
     {
         return view('clients.edit-profile', compact('client'));

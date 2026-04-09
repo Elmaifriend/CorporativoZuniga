@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use App\Models\Document;
 
 class Procedure extends Model
 {
@@ -39,9 +40,9 @@ class Procedure extends Model
         return $this->belongsTo(ClientCase::class, "case_id");
     }
 
-    public function documents()
+    public function documents(): MorphMany
     {
-        return $this->hasMany(ProcedureDocument::class, "procedure_id");
+        return $this->morphMany(Document::class, 'documentable');
     }
 
     public function payments(): MorphMany

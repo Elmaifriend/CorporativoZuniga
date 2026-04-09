@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Clients\RelationManagers;
+namespace App\Filament\Resources\Procedures\RelationManagers;
 
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
@@ -20,7 +20,7 @@ class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
-    protected static ?string $title = 'Documentos del Cliente';
+    protected static ?string $title = "Documentos del Tramite";
 
     public function form(Schema $schema): Schema
     {
@@ -37,21 +37,19 @@ class DocumentsRelationManager extends RelationManager
                             ->required()
                             ->prefixIcon('heroicon-m-document-magnifying-glass')
                             ->options([
-                                'Identidad' => [
-                                    'acta_nacimiento' => 'Acta de nacimiento',
-                                    'pasaporte' => 'Pasaporte',
-                                    'curp' => 'CURP',
-                                    'identificacion_oficial' => 'Identificación oficial (INE)',
+                                'Legales' => [
+                                    'demanda' => 'Demanda / Escrito Inicial',
+                                    'contestacion' => 'Contestación',
+                                    'pruebas' => 'Pruebas / Peritajes',
+                                    'sentencia' => 'Resolución / Sentencia',
+                                    'amparo' => 'Amparo',
                                 ],
-                                'Migración' => [
-                                    'formato_i130' => 'Petición familiar (I-130)',
-                                    'formato_i485' => 'Ajuste de estatus (I-485)',
-                                    'formato_i765' => 'Permiso de trabajo (I-765)',
-                                    'visa_turista' => 'Visa de turista',
+                                'Administrativos' => [
+                                    'pago_derechos' => 'Comprobante de pago de derechos',
+                                    'acuses' => 'Acuses de recibo',
+                                    'citatorio' => 'Citatorios / Notificaciones',
                                 ],
                                 'Otros' => [
-                                    'comprobante_domicilio' => 'Comprobante de domicilio',
-                                    'antecedentes_penales' => 'Antecedentes penales',
                                     'otro' => 'Otro documento',
                                 ],
                             ]),
@@ -64,7 +62,7 @@ class DocumentsRelationManager extends RelationManager
                             ->label('Documento Digitalizado')
                             ->required()
                             ->disk('public')
-                            ->directory('documents')
+                            ->directory('documents') // Usa la misma carpeta polimórfica
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
                             ->maxSize(5120)
                             ->openable()

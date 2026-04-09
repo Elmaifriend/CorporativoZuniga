@@ -81,7 +81,18 @@ class ProcedureForm
                     ->icon('heroicon-m-currency-dollar')
                     ->description('Calcule el esquema de cuotas según el costo total del trámite.')
                     ->columnSpan(8)
-                    ->hiddenOn('edit')
+                    ->hidden(function (string $operation, Get $get) {
+                        // Ocultar si estamos editando
+                        if ($operation === 'edit') return true;
+
+                        // Ocultar si el caso padre tiene facturación global (by_case)
+                        $caseId = $get('case_id') ?? request()->query('case_id');
+                        if ($caseId) {
+                            $case = \App\Models\ClientCase::find($caseId);
+                            return $case && $case->billing_mode === 'by_case';
+                        }
+                        return false;
+                    })
                     ->columns(3)
                     ->schema([
                         TextInput::make('total_cost')
@@ -100,6 +111,7 @@ class ProcedureForm
                             ->numeric()
                             ->prefix('$')
                             ->suffix('USD')
+                            ->dehydrated(false) // Campo efímero
                             ->live(onBlur: true)
                             ->prefixIcon('heroicon-m-arrow-right-circle')
                             ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateInstallments($set, $get)),
@@ -109,6 +121,7 @@ class ProcedureForm
                             ->required()
                             ->numeric()
                             ->placeholder('Ej. 12')
+                            ->dehydrated(false) // Campo efímero
                             ->live(onBlur: true)
                             ->prefixIcon('heroicon-m-calculator')
                             ->afterStateUpdated(fn (Set $set, Get $get) => self::calculateInstallments($set, $get)),
@@ -119,7 +132,7 @@ class ProcedureForm
                             ->prefix('$')
                             ->suffix('USD')
                             ->disabled()
-                            ->dehydrated(false)
+                            ->dehydrated(false) // Campo efímero
                             ->extraInputAttributes(['class' => 'font-bold text-primary-600 dark:text-primary-400']),
 
                         Select::make('installment_interval')
@@ -132,6 +145,7 @@ class ProcedureForm
                                 'yearly' => 'Anual',
                             ])
                             ->native(false)
+                            ->dehydrated(false) // Campo efímero
                             ->prefixIcon('heroicon-m-calendar-days')
                             ->columnSpan(2),
                     ]),

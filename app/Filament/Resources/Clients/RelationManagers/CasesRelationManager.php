@@ -16,7 +16,7 @@ use Tapp\FilamentProgressBarColumn\Tables\Columns\ProgressBarColumn;
 class CasesRelationManager extends RelationManager
 {
     protected static string $relationship = 'cases';
-    protected static ?string $title = 'Casos';
+    protected static ?string $title = 'Casos del Cliente';
 
     public function table(Table $table): Table
     {

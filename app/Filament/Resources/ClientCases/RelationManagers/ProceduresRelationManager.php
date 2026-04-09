@@ -26,7 +26,7 @@ class ProceduresRelationManager extends RelationManager
 {
     protected static string $relationship = 'procedures';
 
-    protected static ?string $title = 'Gestión de Trámites';
+    protected static ?string $title = 'Trámites del Caso';
 
     public function form(Schema $schema): Schema
     {
